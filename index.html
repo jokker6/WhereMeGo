@@ -3,7 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Wherigo mängija</title>
+<title>WhereMeGo</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1f6b4a">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <style>
 :root{
   --bg:#f4f1ea; --surface:#fffdf8; --ink:#1f2a24; --muted:#6a746d; --line:#ddd6c6;
@@ -68,7 +74,7 @@ pre.log{font:12px/1.4 ui-monospace,Menlo,monospace;white-space:pre-wrap;word-bre
 </head>
 <body>
 <header>
-  <h1 id="title">Wherigo mängija</h1>
+  <h1 id="title">WhereMeGo</h1>
   <div class="seg" id="modeSeg" hidden>
     <button data-mode="sim" aria-pressed="true">Simulatsioon</button>
     <button data-mode="gps" aria-pressed="false">GPS</button>
@@ -7509,7 +7515,7 @@ function listHTML(arr, opts){
 function render(){
   const v = $('#view'); const s = state.snap;
   document.querySelectorAll('#nav button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === state.tab && !state.detail));
-  if (s && s.cart) $('#title').textContent = s.cart.name || 'Wherigo mängija';
+  if (s && s.cart) $('#title').textContent = s.cart.name || 'WhereMeGo';
   document.querySelectorAll('#nav .dot').forEach(d => d.remove());
   if (s) for (const [tab, n] of [['yousee', s.yousee.length], ['inv', s.inventory.length], ['tasks', s.tasks.filter(t=>!t.complete).length]]){
     if (n){ const b = document.querySelector(`#nav [data-tab=${tab}]`); b.insertAdjacentHTML('beforeend', `<span class="dot">${n}</span>`); }
@@ -7538,18 +7544,39 @@ function render(){
 
 function renderStart(v){
   $('#nav').hidden = true; $('#modeSeg').hidden = true;
-  v.innerHTML = `<div class="hero"><h2>Wherigo mängija</h2>
-    <p class="muted">Ava oma .gwc-kassett. Kassett jääb sinu brauserisse, midagi ei saadeta serverisse.</p>
+  v.innerHTML = `<div class="hero"><h2>WhereMeGo</h2>
+    <p class="muted">Ava oma .gwc-kassett. Kassett jääb sinu seadmesse, midagi ei saadeta serverisse.</p>
     <p><button class="btn" id="pick">Vali kassett</button></p>
     <input type="file" id="file" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" tabindex="-1">
     <p class="muted" style="font-size:.85rem">Kui nupp ei tee midagi, lohista .gwc-fail siia lehele.</p>
-    <p class="err" id="startErr"></p></div>`;
+    <p class="err" id="startErr"></p>
+    <div id="saved" style="text-align:left;margin-top:24px"></div></div>`;
+  const openBuf = async (buf, fname) => {
+    await startCartridge(parseGWC(buf));
+    const title = (state.snap && state.snap.cart && state.snap.cart.name) || fname;
+    cartSave({ key: state.key, file: fname, title, size: buf.byteLength, t: Date.now(), buf });
+  };
   const load = async f => {
     if (!f) return;
     $('#startErr').textContent = 'Laen: ' + f.name + ' …';
-    try { await startCartridge(parseGWC(await f.arrayBuffer())); }
+    try { await openBuf(await f.arrayBuffer(), f.name); }
     catch(err){ $('#startErr').textContent = 'Viga: ' + (err.message || err); console.error(err); }
   };
+  cartAll().then(list => {
+    if (!list || !list.length || state.tab !== 'start') return;
+    list.sort((a, b) => b.t - a.t);
+    $('#saved').innerHTML = '<h3 style="margin:.2em 0 .5em">Seadmesse salvestatud kassetid</h3><ul class="list">' + list.map(c =>
+      `<li><div class="item"><span class="t"><b>${esc(c.title || c.file)}</b><small>${esc(c.file)} · ${(c.size/1048576).toFixed(1)} MB</small></span>` +
+      `<button class="btn" data-play="${esc(c.key)}">Mängi</button><button class="btn ghost" data-del="${esc(c.key)}" aria-label="Kustuta">✕</button></div></li>`).join('') + '</ul>';
+    $('#saved').querySelectorAll('[data-play]').forEach(b => b.onclick = async () => {
+      const c = list.find(x => x.key === b.dataset.play);
+      try { await startCartridge(parseGWC(c.buf)); } catch(err){ $('#startErr').textContent = 'Viga: ' + (err.message || err); }
+    });
+    $('#saved').querySelectorAll('[data-del]').forEach(b => b.onclick = async () => {
+      if (!confirm('Kustutan kasseti seadmest? Salvestatud mäng jääb alles.')) return;
+      await cartDel(b.dataset.del); renderStart(v);
+    });
+  }).catch(() => {});
   $('#pick').onclick = () => { try { $('#file').click(); } catch(e){ $('#startErr').textContent = 'Failivalija ei avane: ' + e.message; } };
   $('#file').onchange = e => load(e.target.files[0]);
   document.body.ondragover = e => e.preventDefault();
@@ -7663,6 +7690,31 @@ function drawMap(){
   if (pi) pi.textContent = state.pos ? `Asukoht: ${state.pos.lat.toFixed(5)}, ${state.pos.lon.toFixed(5)} (±${Math.round(state.pos.acc)} m)` : 'Asukohta pole veel (ootan GPS-i või simulatsiooni).';
 }
 window.addEventListener('resize', () => { if (state.tab === 'map') drawMap(); });
+
+/* ------------------------------------------------------------------ cartridge library (IndexedDB) */
+const idbOpen = () => new Promise((res, rej) => {
+  const r = indexedDB.open('wheremego', 1);
+  r.onupgradeneeded = () => r.result.createObjectStore('carts', { keyPath: 'key' });
+  r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+});
+async function idbTx(mode, fn){
+  const db = await idbOpen();
+  return new Promise((res, rej) => {
+    const tx = db.transaction('carts', mode); const rq = fn(tx.objectStore('carts'));
+    tx.oncomplete = () => { db.close(); res(rq && rq.result); }; tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error);
+  });
+}
+const cartAll = () => idbTx('readonly', s => s.getAll());
+const cartDel = key => idbTx('readwrite', s => s.delete(key));
+async function cartSave(rec){
+  try { await idbTx('readwrite', s => s.put(rec)); if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); }
+  catch(e){ log('Kassetti ei saanud seadmesse salvestada: ' + (e && e.message), true); }
+}
+
+/* ------------------------------------------------------------------ offline (service worker) */
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
+  navigator.serviceWorker.register('sw.js').catch(e => log('Offline-tuge ei käivitu: ' + e.message, true));
+}
 
 /* ------------------------------------------------------------------ wiring */
 document.querySelectorAll('#nav button').forEach(b => b.onclick = () => { state.tab = b.dataset.tab; state.detail = null; render(); });
