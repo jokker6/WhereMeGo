@@ -8072,7 +8072,7 @@ function loadChunk(str){
 async function startCartridge(gwc){
   stopAll(); state.gwc = gwc;
   state.mapFitted = false; state.follow = true; resetMapLayers();
-  state.medias = gwc.medias; state.urls = {}; state.snap = null; state.snapJson = ''; state.detail = null; state.started = false;
+  state.medias = gwc.medias; state.urls = {}; state.snap = null; state.snapJson = ''; state.detail = null; state.tabStack = []; state.started = false;
   vm = new shine.VM({});
   vm.setGlobal('__H_log', t => log(u8(t)));
   vm.setGlobal('__H_message', (id, text, media, buttons) => showMessage(id, u8(text), media, u8(buttons).split('\x1f')));
@@ -8334,7 +8334,8 @@ function renderStart(v){
     <div id="histBox"></div>
     <input type="file" id="file" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" tabindex="-1">
     <p class="muted small">${t('start.drag')}</p>
-    <p class="err" id="startErr"></p></div>`;
+    <p class="err" id="startErr"></p>
+    <p>${coffeeLink()}</p></div>`;
   const openBuf = async (buf, fname) => {
     await startCartridge(parseGWC(buf));
     const title = (state.snap && state.snap.cart && state.snap.cart.name) || fname;
@@ -8368,7 +8369,7 @@ function renderStart(v){
 
 function renderHistory(v){
   $('#nav').hidden = true; $('#modeSeg').hidden = true;
-  v.innerHTML = `<button class="back" id="home">${t('hist.home')}</button><h2 style="margin:.2em 0 .6em">${t('hist.title')}</h2><div id="hl"><p class="muted">${t('hist.loading')}</p></div>`;
+  v.innerHTML = `<button class="back" id="home">${t('hist.home')}</button><h2 style="margin:.2em 0 .6em">${t('hist.title')}</h2><div id="hl"><p class="muted">${t('hist.loading')}</p></div><p style="margin-top:18px">${coffeeLink()}</p>`;
   $('#home').onclick = () => { state.tab = 'start'; render(); };
   cartAll().then(list => {
     if (state.tab !== 'history') return;
@@ -8548,17 +8549,18 @@ function renderMap(v){
 window.addEventListener('resize', () => { if (lmap && state.tab === 'map') lmap.invalidateSize(); });
 
 /* ------------------------------------------------------------------ menu, about, end screen */
-function closeModal(){ $('#modal').hidden = true; }
-const coffeeLink = cls => CFG.donateUrl ? `<a class="btn ${cls || ''}" href="${esc(CFG.donateUrl)}" target="_blank" rel="noopener">☕ ${esc(CFG.donateText || t('coffee'))}</a>` : '';
+function closeModal(){ $('#modal').hidden = true; state.menuOpen = false; }
+const coffeeLink = cls => CFG.donateUrl ? `<a class="btn ${cls === undefined ? 'ghost' : cls}" href="${esc(CFG.donateUrl)}" target="_blank" rel="noopener">☕ ${esc(CFG.donateText || t('coffee'))}</a>` : '';
 
 function showMenu(){
   const playing = state.started && vm;
   $('#card').innerHTML = `<div class="btns" style="margin-top:0">
     ${playing ? `<button class="btn ghost" data-m="home">${t('menu.home')}</button><button class="btn ghost" data-m="finish">${t('menu.finish')}</button>` : ''}
-    ${coffeeLink('ghost')}
     <div class="row" style="align-items:center;margin-top:0"><span class="muted small">${t('menu.lang')}</span><span class="seg" id="langSeg"><button data-l="et" aria-pressed="${lang === 'et'}">Eesti</button><button data-l="en" aria-pressed="${lang === 'en'}">English</button></span></div>
     <button class="btn ghost" data-m="about">${t('menu.about')}</button>
-    <button class="btn ghost" data-m="close">${t('btn.close')}</button></div>`;
+    <button class="btn ghost" data-m="close">${t('btn.close')}</button>
+    ${coffeeLink()}</div>`;
+  state.menuOpen = true;
   $('#card').querySelectorAll('#langSeg button').forEach(b => b.onclick = () => setLang(b.dataset.l));
   $('#modal').hidden = false;
   $('#card').querySelectorAll('button[data-m]').forEach(b => b.onclick = () => {
@@ -8588,17 +8590,16 @@ function showAbout(){
     <p class="small">${t('about.built', {moon: '<a href="https://github.com/gamesys/moonshine" target="_blank" rel="noopener">Moonshine</a>', leaf: '<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>', osm: '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'})}</p>
     <p class="small muted">${t('about.tm')}</p>
     ${CFG.repoUrl ? `<p class="small"><a href="${esc(CFG.repoUrl)}" target="_blank" rel="noopener">${t('about.src')}</a></p>` : ''}
-    <div class="btns"><button class="btn ghost" id="aboutClose">${t('btn.close')}</button></div>`;
-  $('#modal').hidden = false; $('#aboutClose').onclick = closeModal;
+    <div class="btns"><button class="btn ghost" id="aboutClose">${t('btn.close')}</button>${coffeeLink()}</div>`;
+  state.menuOpen = true; $('#modal').hidden = false; $('#aboutClose').onclick = closeModal;
 }
 
 function showEnd(){
   const name = (state.snap && state.snap.cart && state.snap.cart.name) || '';
   $('#card').innerHTML = `<h2 style="margin:.1em 0">${t('end.title')}</h2>
     <p class="desc"><b>${esc(name)}</b></p><p class="muted">${t('end.thanks')}</p>
-    ${CFG.donateUrl ? `<div class="coffee"><p style="margin-top:0">${t('end.coffee')}</p>${coffeeLink()}</div>` : ''}
-    <div class="btns"><button class="btn ghost" id="endHome">${t('end.home')}</button><button class="btn ghost" id="endStay">${t('end.stay')}</button></div>`;
-  $('#modal').hidden = false;
+    <div class="btns"><button class="btn ghost" id="endHome">${t('end.home')}</button><button class="btn ghost" id="endStay">${t('end.stay')}</button>${coffeeLink()}</div>`;
+  state.menuOpen = true; $('#modal').hidden = false;
   $('#endHome').onclick = goHome; $('#endStay').onclick = closeModal;
 }
 
@@ -8628,13 +8629,29 @@ if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
 }
 
 /* ------------------------------------------------------------------ wiring */
-document.querySelectorAll('#nav button').forEach(b => b.onclick = () => { state.tab = b.dataset.tab; state.detail = null; render(); });
+document.querySelectorAll('#nav button').forEach(b => b.onclick = () => { if (state.tab !== b.dataset.tab || state.detail){ (state.tabStack = state.tabStack || []).push(state.tab); if (state.tabStack.length > 30) state.tabStack.shift(); } state.tab = b.dataset.tab; state.detail = null; render(); });
 document.querySelectorAll('#modeSeg button').forEach(b => b.onclick = () => setMode(b.dataset.mode));
 $('#menuBtn').onclick = showMenu;
 window.addEventListener('error', e => log(t('log.js', {m: e.message}), true));
 window.addEventListener('unhandledrejection', e => log(t('err', {m: (e.reason && e.reason.message || e.reason)}), true));
 applyStatic();
 render();
+
+/* ------------------------------------------------------------------ back button (browser / Android) */
+function appBack(){
+  if (state.menuOpen){ closeModal(); return true; }
+  if (!$('#modal').hidden) return true;               // a game message is open: it must be answered with its buttons
+  if (state.tab === 'history' || state.tab === 'intro'){ if (state.tab === 'intro') { stopAll(); vm = null; } state.tab = 'start'; render(); return true; }
+  if (state.tab === 'start') return false;
+  if (state.detail){ state.detail = null; render(); return true; }
+  if (state.tabStack && state.tabStack.length){ state.tab = state.tabStack.pop(); render(); return true; }
+  if (state.tab !== 'map'){ state.tab = 'map'; render(); return true; }
+  showMenu(); return true;                              // game root: offer Home instead of silently leaving
+}
+const backGuard = () => { try { history.pushState({ wmg: 1 }, ''); } catch(e){} };
+try { history.replaceState({ wmg: 0 }, ''); } catch(e){}
+backGuard();
+window.addEventListener('popstate', () => { if (appBack()) backGuard(); else history.back(); });
 </script>
 </body>
 </html>
