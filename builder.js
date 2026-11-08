@@ -9,7 +9,7 @@ Object.assign(I18N.et, {
  'b.version':'Versioon','b.type':'Tüüp','b.lat':'Laiuskraad','b.lon':'Pikkuskraad','b.here':'Kasuta minu asukohta','b.splash':'Avapilt','b.icon':'Ikoon','b.none':'– pole –',
  'b.media':'Pildid ja helid','b.mediaHelp':'Meedia number on selle järjekorra number (1, 2, 3 …). Luas tuleb ZMedia objektid luua samas järjekorras.','b.addMedia':'+ Lisa faile',
  'b.mediaSnip':'Lisa meedia Lua kood','b.up':'Üles','b.down':'Alla','b.remove':'Eemalda','b.noMedia':'Meediat pole lisatud.','b.mediaBad':'Seda failitüüpi ei toetata: {n}',
- 'b.code':'Lua kood','b.sample':'Näidiskassett','b.snip':'Lisa lõik …','b.confirmSample':'Asendan praeguse koodi näidisega?','b.compile':'Kompileeri','b.test':'Testi mängijas','b.save':'Salvesta .gwc',
+ 'b.adventure':'Seikluse sisu','b.code':'Lua kood','b.sample':'Näidiskassett','b.snip':'Lisa lõik …','b.confirmSample':'Asendan praeguse koodi näidisega?','b.compile':'Kompileeri','b.test':'Testi mängijas','b.save':'Salvesta .gwc',
  'b.busy':'Kompileerin …','b.okCompile':'Kompileerimine õnnestus ({n} baiti).','b.line':'Rida {n}','b.saved':'Fail valmis: {f} ({n} KB).','b.runErr':'Kassett ei käivitu: {m}','b.autosave':'Töö salvestub automaatselt selles brauseris.',
  'b.export':'Ekspordi projekt','b.import':'Impordi projekt','b.importBad':'Projektifaili ei saanud lugeda: {m}','b.ref':'Wherigo funktsioonide ülevaade','b.newProj':'Uus projekt','b.confirmNew':'Kustutan praeguse projekti (kood, andmed ja meedia)?',
  'b.compilerFail':'Kompilaatorit ei saanud laadida ({m}). Ehitaja vajab esimesel korral internetti.','b.hint':'Näpunäide: kassett peab lõppema reaga return cartridge',
@@ -20,7 +20,7 @@ Object.assign(I18N.en, {
  'b.version':'Version','b.type':'Type','b.lat':'Latitude','b.lon':'Longitude','b.here':'Use my location','b.splash':'Splash screen','b.icon':'Icon','b.none':'– none –',
  'b.media':'Images and sounds','b.mediaHelp':'A media number is its position in this list (1, 2, 3 …). Create the ZMedia objects in Lua in the same order.','b.addMedia':'+ Add files',
  'b.mediaSnip':'Insert media Lua code','b.up':'Up','b.down':'Down','b.remove':'Remove','b.noMedia':'No media added.','b.mediaBad':'This file type is not supported: {n}',
- 'b.code':'Lua code','b.sample':'Sample cartridge','b.snip':'Insert snippet …','b.confirmSample':'Replace the current code with the sample?','b.compile':'Compile','b.test':'Test in player','b.save':'Save .gwc',
+ 'b.adventure':'Adventure content','b.code':'Lua code','b.sample':'Sample cartridge','b.snip':'Insert snippet …','b.confirmSample':'Replace the current code with the sample?','b.compile':'Compile','b.test':'Test in player','b.save':'Save .gwc',
  'b.busy':'Compiling …','b.okCompile':'Compiled successfully ({n} bytes).','b.line':'Line {n}','b.saved':'File ready: {f} ({n} KB).','b.runErr':'The cartridge will not start: {m}','b.autosave':'Your work is saved automatically in this browser.',
  'b.export':'Export project','b.import':'Import project','b.importBad':'Cannot read the project file: {m}','b.ref':'Wherigo functions overview','b.newProj':'New project','b.confirmNew':'Delete the current project (code, details and media)?',
  'b.compilerFail':'Could not load the compiler ({m}). The builder needs the internet the first time.','b.hint':'Tip: the cartridge must end with the line return cartridge',
@@ -35,7 +35,7 @@ const MIMEOF = { 1: 'image/bmp', 2: 'image/png', 3: 'image/jpeg', 4: 'image/gif'
 const TYPENAME = { 1: 'bmp', 2: 'png', 3: 'jpg', 4: 'gif', 17: 'wav', 18: 'mp3', 21: 'ogg' };
 const DEF_META = { name: '', author: '', company: '', desc: '', startDesc: '', version: '1.0', type: 'Geocache', lat: '59.4370', lon: '24.7536', splash: 0, icon: 0 };
 
-let B = null;                        // { meta, code, media: [{ name, type, buf }] }
+let B = null;                        // { meta, code, mode: 'visual'|'lua', vis, media: [{ name, type, buf }] }
 let saveTimer = 0, compilerVm = null, busy = false;
 
 const idbOpen = () => new Promise((res, rej) => {
@@ -56,11 +56,20 @@ async function loadProject() {
   if (B) return B;
   let p = null; try { p = JSON.parse(ls.get(LSK) || 'null'); } catch (e) {}
   let media = []; try { media = (await idbRun('readonly', s => s.get('media'))) || []; } catch (e) {}
-  B = { meta: Object.assign({}, DEF_META, p && p.meta), code: (p && p.code) || '', media };
+  B = { meta: Object.assign({}, DEF_META, p && p.meta), code: (p && p.code) || '', media, vis: p && p.vis, mode: p && p.mode };
+  await ensureVisual();
+  if (!B.mode) B.mode = (p && p.code && !p.vis) ? 'lua' : 'visual';
   if (!B.code) B.code = sampleCode();
   return B;
 }
-function saveNow() { ls.set(LSK, JSON.stringify({ meta: B.meta, code: B.code })); }
+function saveNow() { ls.set(LSK, JSON.stringify({ meta: B.meta, code: B.code, vis: B.vis, mode: B.mode })); }
+const host = { get B() { return B; }, onChange: () => scheduleSave(), typeName: n => TYPENAME[n] };
+async function ensureVisual() {
+  if (!window.WMGVisual) await loadScript('visual.js');
+  WMGVisual.setHost(Object.assign(host, { open: host.open || new Set() }));
+  if (!B.vis) { B.vis = WMGVisual.sampleVis(); }
+}
+const getLua = () => B.mode === 'visual' ? WMGVisual.genLua(B.vis, B) : B.code;
 function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 500); }
 
 /* ------------------------------------------------------------------ helpers */
@@ -373,7 +382,7 @@ function renderMedia() {
     else if (a === 'down' && i < M.length - 1) [M[i + 1], M[i]] = [M[i], M[i + 1]];
     else return;
     B.meta.splash = remap(B.meta.splash); B.meta.icon = remap(B.meta.icon);
-    saveMedia(); saveNow(); renderMedia();
+    saveMedia(); saveNow(); renderMedia(); if (window.WMGVisual) WMGVisual.repaint();
     $('#bSplash').innerHTML = mediaOpts(B.meta.splash); $('#bIcon').innerHTML = mediaOpts(B.meta.icon);
   });
 }
@@ -396,7 +405,7 @@ async function doCompile() {
   setStatus(esc(t('b.busy')));
   try {
     await new Promise(r => setTimeout(r, 30));
-    return await compileLua(B.code);
+    return await compileLua(getLua());
   } catch (e) { showError(e); return null; }
   finally { busy = false; }
 }
@@ -407,15 +416,15 @@ function playerMedias() {
 
 function exportProject() {
   const b64 = ab => btoa(bufToBin(ab));
-  const data = JSON.stringify({ wheremego: 1, meta: B.meta, code: B.code, media: B.media.map(m => ({ name: m.name, type: m.type, data: b64(m.buf) })) });
+  const data = JSON.stringify({ wheremego: 1, meta: B.meta, code: B.code, vis: B.vis, mode: B.mode, media: B.media.map(m => ({ name: m.name, type: m.type, data: b64(m.buf) })) });
   download(new Blob([data], { type: 'application/json' }), (B.meta.name || 'cartridge').replace(/[^\w\-]+/g, '_') + '.wmg.json');
 }
 async function importProject(file) {
   try {
     const p = JSON.parse(await file.text()); if (!p || p.wheremego !== 1) throw new Error('not a WhereMeGo project');
-    B = { meta: Object.assign({}, DEF_META, p.meta), code: String(p.code || ''),
+    B = { meta: Object.assign({}, DEF_META, p.meta), code: String(p.code || ''), vis: p.vis, mode: p.mode || (p.vis ? 'visual' : 'lua'),
       media: (p.media || []).map(m => ({ name: m.name, type: m.type, buf: binToBytes(atob(m.data)).buffer })) };
-    saveNow(); await saveMedia(); render();
+    await ensureVisual(); saveNow(); await saveMedia(); render();
   } catch (e) { setStatus(esc(t('b.importBad', { m: e.message })), true); }
 }
 function download(blob, name) {
@@ -437,10 +446,15 @@ function renderBuilder(v) {
     <div class="two"><div><label>${t('b.splash')}</label><select id="bSplash">${mediaOpts(m.splash)}</select></div><div><label>${t('b.icon')}</label><select id="bIcon">${mediaOpts(m.icon)}</select></div></div>
   </details>
   <details><summary>${t('b.media')}</summary><p class="muted small">${t('b.mediaHelp')}</p><div id="bMediaList"></div>
-    <div class="row"><button class="btn sm" id="bAddMedia">${t('b.addMedia')}</button><button class="btn sm ghost" id="bMediaSnip">${t('b.mediaSnip')}</button></div>
+    <div class="row"><button class="btn sm" id="bAddMedia">${t('b.addMedia')}</button>${B.mode === 'lua' ? `<button class="btn sm ghost" id="bMediaSnip">${t('b.mediaSnip')}</button>` : ''}</div>
     <input type="file" id="bMediaFile" multiple accept=".png,.jpg,.jpeg,.gif,.bmp,.wav,.mp3,.ogg,image/*,audio/*" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" tabindex="-1">
   </details>
-  <details open><summary>${t('b.code')}</summary>
+  ${B.mode === 'visual' ? `<details open><summary>${t('b.adventure')}</summary><div id="visBox"></div></details>
+  <div class="row"><button class="btn" id="bCompile">${t('b.compile')}</button><button class="btn" id="bTest">${t('b.test')}</button><button class="btn" id="bSave">${t('b.save')}</button></div>
+  <div class="status" id="bStatus" role="status"></div>
+  <details><summary>${t('adv.showLua')}</summary><pre class="ref" id="genLua"></pre><div class="row"><button class="btn sm ghost" id="bToLua">${t('adv.lua')}</button></div></details>`
+  : `<details open><summary>${t('b.code')}</summary>
+    <p class="muted small">${t('adv.mode')}</p><div class="row"><button class="btn sm ghost" id="bToVis">${t('adv.visual')}</button></div>
     <div class="row"><button class="btn sm ghost" id="bSample">${t('b.sample')}</button>
       <select id="bSnip" style="width:auto;flex:1"><option value="">${t('b.snip')}</option>${Object.keys(SNIPPETS).map(k => `<option>${k}</option>`).join('')}</select></div>
     <div class="editor"><div class="gut" id="gut"></div><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea></div>
@@ -448,21 +462,30 @@ function renderBuilder(v) {
     <div class="row"><button class="btn" id="bCompile">${t('b.compile')}</button><button class="btn" id="bTest">${t('b.test')}</button><button class="btn" id="bSave">${t('b.save')}</button></div>
     <div class="status" id="bStatus" role="status"></div>
   </details>
-  <details><summary>${t('b.ref')}</summary><pre class="ref">${esc(REF)}</pre></details>
+  <details><summary>${t('b.ref')}</summary><pre class="ref">${esc(REF)}</pre></details>`}
   <div class="row"><button class="btn sm ghost" id="bExport">${t('b.export')}</button><button class="btn sm ghost" id="bImport">${t('b.import')}</button><button class="btn sm ghost" id="bNew">${t('b.newProj')}</button>
     <input type="file" id="bImportFile" accept=".json,application/json" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" tabindex="-1"></div>
   <p class="muted small">${t('b.autosave')}</p>
   <p>${coffeeLink()}</p></div>`;
 
-  const ta = $('#code'), gut = $('#gut'); ta.value = B.code; gut.textContent = lineNumbers(); renderMedia();
+  const lua = B.mode === 'lua', ta = lua ? $('#code') : null, gut = lua ? $('#gut') : null; if (lua) { ta.value = B.code; gut.textContent = lineNumbers(); } renderMedia();
+  const on = (id, ev, fn) => { const e = $(id); if (e) e[ev] = fn; };
   const bind = (id, key, num) => { $(id).oninput = $(id).onchange = e => { B.meta[key] = num ? +e.target.value : e.target.value; scheduleSave(); }; };
   bind('#bName', 'name'); bind('#bAuthor', 'author'); bind('#bCompany', 'company'); bind('#bDesc', 'desc'); bind('#bStartDesc', 'startDesc'); bind('#bVersion', 'version');
   bind('#bType', 'type'); bind('#bLat', 'lat'); bind('#bLon', 'lon'); bind('#bSplash', 'splash', true); bind('#bIcon', 'icon', true);
-  ta.oninput = () => { B.code = ta.value; gut.textContent = lineNumbers(); scheduleSave(); };
-  ta.onscroll = () => { gut.scrollTop = ta.scrollTop; };
-  ta.onkeydown = e => { if (e.key === 'Tab') { e.preventDefault(); insertAtCursor('  '); } };
-  const insertAtCursor = txt => { ta.focus(); const s = ta.selectionStart, en = ta.selectionEnd;
-    ta.value = ta.value.slice(0, s) + txt + ta.value.slice(en); ta.selectionStart = ta.selectionEnd = s + txt.length; ta.oninput(); };
+  let insertAtCursor = () => {};
+  if (lua) {
+    ta.oninput = () => { B.code = ta.value; gut.textContent = lineNumbers(); scheduleSave(); };
+    ta.onscroll = () => { gut.scrollTop = ta.scrollTop; };
+    ta.onkeydown = e => { if (e.key === 'Tab') { e.preventDefault(); insertAtCursor('  '); } };
+    insertAtCursor = txt => { ta.focus(); const s = ta.selectionStart, en = ta.selectionEnd;
+      ta.value = ta.value.slice(0, s) + txt + ta.value.slice(en); ta.selectionStart = ta.selectionEnd = s + txt.length; ta.oninput(); };
+  } else {
+    WMGVisual.mount($('#visBox'), host);
+    const det = $('#genLua').closest('details'); det.ontoggle = () => { if (det.open) $('#genLua').textContent = getLua(); };
+    on('#bToLua', 'onclick', () => { if (!confirm(t('adv.luaConfirm'))) return; B.code = getLua(); B.mode = 'lua'; saveNow(); render(); });
+  }
+  on('#bToVis', 'onclick', () => { if (!confirm(t('adv.visualConfirm'))) return; B.mode = 'visual'; saveNow(); render(); });
 
   $('#bBack').onclick = () => { saveNow(); state.tab = 'start'; render(); };
   $('#bHere').onclick = () => {
@@ -478,11 +501,11 @@ function renderBuilder(v) {
       if (!type) { setStatus(esc(t('b.mediaBad', { n: f.name })), true); continue; }
       B.media.push({ name: f.name, type, buf: await f.arrayBuffer() });
     }
-    e.target.value = ''; await saveMedia(); renderMedia(); $('#bSplash').innerHTML = mediaOpts(B.meta.splash); $('#bIcon').innerHTML = mediaOpts(B.meta.icon);
+    e.target.value = ''; await saveMedia(); renderMedia(); if (window.WMGVisual) WMGVisual.repaint(); $('#bSplash').innerHTML = mediaOpts(B.meta.splash); $('#bIcon').innerHTML = mediaOpts(B.meta.icon);
   };
-  $('#bMediaSnip').onclick = () => { if (B.media.length) insertAtCursor(mediaSnippet() + '\n'); };
-  $('#bSample').onclick = () => { if (!B.code.trim() || confirm(t('b.confirmSample'))) { B.code = sampleCode(); ta.value = B.code; gut.textContent = lineNumbers(); scheduleSave(); } };
-  $('#bSnip').onchange = e => { const s = SNIPPETS[e.target.value]; if (s) insertAtCursor('\n' + s); e.target.value = ''; };
+  on('#bMediaSnip', 'onclick', () => { if (B.media.length) insertAtCursor(mediaSnippet() + '\n'); });
+  on('#bSample', 'onclick', () => { if (!B.code.trim() || confirm(t('b.confirmSample'))) { B.code = sampleCode(); ta.value = B.code; gut.textContent = lineNumbers(); scheduleSave(); } });
+  on('#bSnip', 'onchange', e => { const s = SNIPPETS[e.target.value]; if (s) insertAtCursor('\n' + s); e.target.value = ''; });
   $('#bCompile').onclick = async () => { const b = await doCompile(); if (b) setStatus(esc(t('b.okCompile', { n: b.length }))); };
   $('#bSave').onclick = async () => {
     const b = await doCompile(); if (!b) return;
@@ -504,7 +527,7 @@ function renderBuilder(v) {
   $('#bImportFile').onchange = e => { if (e.target.files[0]) importProject(e.target.files[0]); };
   $('#bNew').onclick = async () => {
     if (!confirm(t('b.confirmNew'))) return;
-    B = { meta: Object.assign({}, DEF_META), code: '', media: [] }; B.code = sampleCode(); saveNow(); await saveMedia(); render();
+    B = { meta: Object.assign({}, DEF_META), code: '', media: [], mode: 'visual' }; B.code = sampleCode(); await ensureVisual(); saveNow(); await saveMedia(); render();
   };
 }
 
