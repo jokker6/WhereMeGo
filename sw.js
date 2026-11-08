@@ -1,7 +1,7 @@
 // WhereMeGo service worker: the whole app is cached so it works without network.
 // Bump CACHE when you publish a new version, so installed copies fetch it.
-const CACHE = 'wheremego-v4';
-const ASSETS = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
+const CACHE = 'wheremego-v6';
+const ASSETS = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'builder.js', 'lcompiler.luac'];
 // Map tiles you have looked at stay available offline (limited number, refreshed after a week, as the OSM tile policy asks).
 const TILE_PATH = /\/\d{1,2}\/\d+\/\d+(@2x)?\.(png|jpe?g|webp)$/;   // any slippy-map tile server (z/x/y.png)
 const TILES = 'wheremego-tiles', MAX_TILES = 800, TILE_MAX_AGE = 7 * 24 * 3600 * 1000;

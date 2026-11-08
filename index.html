@@ -34,9 +34,9 @@ nav button b{display:block;font-size:1.15rem;font-weight:400}
 nav button[aria-selected=true]{color:var(--accent);font-weight:600}
 nav .dot{position:absolute;top:6px;right:calc(50% - 18px);min-width:16px;height:16px;border-radius:8px;background:var(--warn);
   color:#fff;font-size:.65rem;line-height:16px;padding:0 4px}
-button.btn,label.btn{display:inline-block;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);
+button.btn,label.btn,a.btn{display:inline-block;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);
   padding:11px 18px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer;text-align:center}
-button.btn.ghost,label.btn.ghost{background:none;color:var(--accent)}
+button.btn.ghost,label.btn.ghost,a.btn.ghost{background:none;color:var(--accent)}
 button.btn:disabled{opacity:.45}
 .list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .item{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;
@@ -7943,7 +7943,7 @@ et: {
  'menu.home':'⌂ Avaleht (mäng salvestatakse)','menu.finish':'⚑ Lõpeta seiklus','menu.about':'Teave ja litsentsid','menu.lang':'Keel',
  'menu.confirmFinish':'Lõpetan seikluse? Mängu saad hiljem uuesti alustada.','coffee':'Osta arendajale kohv',
  'about.intro':'Avatud lähtekoodiga Wherigo kassettide mängija. Kassetid ja mängu salvestused jäävad sinu seadmesse.',
- 'about.built':'Tehtud kasutades: {moon} (MIT, Lua 5.1 VM), {leaf} (BSD-2). Kaardiandmed © {osm} kaastöölised.',
+ 'about.built':'Tehtud kasutades: {moon} (MIT, Lua 5.1 VM), Yueliang (MIT, Lua 5.1 kompilaator), {leaf} (BSD-2). Kaardiandmed © {osm} kaastöölised.',
  'about.tm':'Wherigo on Groundspeak, Inc. kaubamärk. WhereMeGo ei ole Groundspeaki toode ega ole sellega seotud.','about.src':'Lähtekood GitHubis',
  'end.title':'Seiklus läbitud 🎉','end.thanks':'Aitäh, et mängisid!','end.coffee':'Kui WhereMeGo sulle meeldis, saad arendajat toetada kohvi hinnaga.',
  'end.home':'Tagasi avalehele','end.stay':'Jätka vaatamist',
@@ -7976,7 +7976,7 @@ en: {
  'menu.home':'⌂ Home (the game is saved)','menu.finish':'⚑ Finish adventure','menu.about':'About and licences','menu.lang':'Language',
  'menu.confirmFinish':'Finish the adventure? You can start it again later.','coffee':'Buy the developer a coffee',
  'about.intro':'An open-source player for Wherigo cartridges. Cartridges and saved games stay on your device.',
- 'about.built':'Built with {moon} (MIT, Lua 5.1 VM) and {leaf} (BSD-2). Map data © {osm} contributors.',
+ 'about.built':'Built with {moon} (MIT, Lua 5.1 VM), Yueliang (MIT, Lua 5.1 compiler) and {leaf} (BSD-2). Map data © {osm} contributors.',
  'about.tm':'Wherigo is a trademark of Groundspeak, Inc. WhereMeGo is not a Groundspeak product and is not affiliated with it.','about.src':'Source code on GitHub',
  'end.title':'Adventure completed 🎉','end.thanks':'Thanks for playing!','end.coffee':'If you enjoyed WhereMeGo, you can support the developer with the price of a coffee.',
  'end.home':'Back to home','end.stay':'Keep looking around',
@@ -8283,12 +8283,14 @@ function render(){
   const v = $('#view'); const s = state.snap;
   document.querySelectorAll('#nav button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === state.tab && !state.detail));
   if (s && s.cart) $('#title').textContent = s.cart.name || 'WhereMeGo';
+  if (['start', 'history', 'builder'].includes(state.tab)) $('#title').textContent = 'WhereMeGo';
   document.querySelectorAll('#nav .dot').forEach(d => d.remove());
   if (s) for (const [tab, n] of [['yousee', s.yousee.length], ['inv', s.inventory.length], ['tasks', s.tasks.filter(t=>!t.complete).length]]){
     if (n){ const b = document.querySelector(`#nav [data-tab=${tab}]`); b.insertAdjacentHTML('beforeend', `<span class="dot">${n}</span>`); }
   }
   if (state.tab === 'start') return renderStart(v);
   if (state.tab === 'history') return renderHistory(v);
+  if (state.tab === 'builder') return renderBuilderTab(v);
   if (state.tab === 'intro') return renderIntro(v);
   if (state.detail) return renderDetail(v);
   switch (state.tab){
@@ -8321,8 +8323,20 @@ const savedGame = key => { try { const r = ls.get('wherigo:' + key); return r ? 
 const fmtDate = ts => new Date(ts).toLocaleString(locale(), { dateStyle: 'short', timeStyle: 'short' });
 
 async function playFromLibrary(c, resume){
+  state.fromBuilder = false;
   await startCartridge(parseGWC(c.buf));
   if (resume) beginPlay(true);
+}
+
+function loadScript(src){
+  return new Promise((res, rej) => { const e = document.createElement('script'); e.src = src; e.onload = res; e.onerror = () => rej(new Error('cannot load ' + src)); document.head.appendChild(e); });
+}
+function renderBuilderTab(v){
+  $('#nav').hidden = true; $('#modeSeg').hidden = true;
+  if (window.WMGBuilder) return window.WMGBuilder.render(v);
+  v.innerHTML = '<p class="muted">' + t('hist.loading') + '</p>';
+  loadScript('builder.js').then(() => { if (state.tab === 'builder') render(); })
+    .catch(e => { v.innerHTML = '<p class="err">' + esc(t('err', {m: e.message})) + '</p><button class="btn ghost" id="bb">' + t('btn.close') + '</button>'; $('#bb').onclick = () => { state.tab = 'start'; render(); }; });
 }
 
 function renderStart(v){
@@ -8334,9 +8348,9 @@ function renderStart(v){
     <div id="histBox"></div>
     <input type="file" id="file" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" tabindex="-1">
     <p class="muted small">${t('start.drag')}</p>
-    <p class="err" id="startErr"></p>
-    <p>${coffeeLink()}</p></div>`;
+    <p class="err" id="startErr"></p></div>`;
   const openBuf = async (buf, fname) => {
+    state.fromBuilder = false;
     await startCartridge(parseGWC(buf));
     const title = (state.snap && state.snap.cart && state.snap.cart.name) || fname;
     cartSave({ key: state.key, file: fname, title, size: buf.byteLength, t: Date.now(), buf });
@@ -8414,7 +8428,7 @@ function renderIntro(v){
     <p><button class="btn ghost" id="other">${t('intro.other')}</button></p></div>`;
   if (sv) $('#resume').onclick = () => beginPlay(true);
   $('#go').onclick = () => beginPlay(false);
-  $('#other').onclick = () => { stopAll(); vm = null; state.tab = 'start'; render(); };
+  $('#other').onclick = () => { stopAll(); vm = null; state.tab = state.fromBuilder ? 'builder' : 'start'; render(); };
 }
 
 function renderDetail(v){
@@ -8555,8 +8569,9 @@ const coffeeLink = cls => CFG.donateUrl ? `<a class="btn ${cls === undefined ? '
 function showMenu(){
   const playing = state.started && vm;
   $('#card').innerHTML = `<div class="btns" style="margin-top:0">
-    ${playing ? `<button class="btn ghost" data-m="home">${t('menu.home')}</button><button class="btn ghost" data-m="finish">${t('menu.finish')}</button>` : ''}
+    ${playing ? `<button class="btn ghost" data-m="home">${state.fromBuilder ? t('menu.builderBack') : t('menu.home')}</button><button class="btn ghost" data-m="finish">${t('menu.finish')}</button>` : ''}
     <div class="row" style="align-items:center;margin-top:0"><span class="muted small">${t('menu.lang')}</span><span class="seg" id="langSeg"><button data-l="et" aria-pressed="${lang === 'et'}">Eesti</button><button data-l="en" aria-pressed="${lang === 'en'}">English</button></span></div>
+    ${state.fromBuilder ? '' : `<button class="btn ghost" data-m="builder">${t('menu.builder')}</button>`}
     <button class="btn ghost" data-m="about">${t('menu.about')}</button>
     <button class="btn ghost" data-m="close">${t('btn.close')}</button>
     ${coffeeLink()}</div>`;
@@ -8568,6 +8583,7 @@ function showMenu(){
     if (m === 'close') closeModal();
     else if (m === 'about') showAbout();
     else if (m === 'home') goHome();
+    else if (m === 'builder') openBuilder();
     else if (m === 'finish'){ closeModal(); if (confirm(t('menu.confirmFinish'))){ ls.set('wheremego:done:' + state.key, '1'); state.endShown = true; showEnd(); } }
   });
 }
@@ -8580,8 +8596,12 @@ function setLang(l){
 }
 
 function goHome(){
-  doSave(); stopAll(); state.started = false; vm = null; state.detail = null; state.tab = 'start';
+  doSave(); stopAll(); state.started = false; vm = null; state.detail = null; state.tab = state.fromBuilder ? 'builder' : 'start';
   closeModal(); render();
+}
+function openBuilder(){
+  if (state.started && vm){ doSave(); stopAll(); state.started = false; vm = null; }
+  state.fromBuilder = false; state.detail = null; state.tab = 'builder'; closeModal(); render();
 }
 
 function showAbout(){
@@ -8641,7 +8661,8 @@ render();
 function appBack(){
   if (state.menuOpen){ closeModal(); return true; }
   if (!$('#modal').hidden) return true;               // a game message is open: it must be answered with its buttons
-  if (state.tab === 'history' || state.tab === 'intro'){ if (state.tab === 'intro') { stopAll(); vm = null; } state.tab = 'start'; render(); return true; }
+  if (state.tab === 'builder'){ state.tab = 'start'; render(); return true; }
+  if (state.tab === 'history' || state.tab === 'intro'){ if (state.tab === 'intro') { stopAll(); vm = null; } state.tab = (state.tab === 'intro' && state.fromBuilder) ? 'builder' : 'start'; render(); return true; }
   if (state.tab === 'start') return false;
   if (state.detail){ state.detail = null; render(); return true; }
   if (state.tabStack && state.tabStack.length){ state.tab = state.tabStack.pop(); render(); return true; }
