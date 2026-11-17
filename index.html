@@ -105,7 +105,11 @@ main:has(>#mapwrap){display:flex;flex-direction:column;padding:10px 12px 12px}
 #mapwrap{flex:1;display:flex;flex-direction:column;min-height:0}
 .mapholder{position:relative;flex:1;min-height:240px}
 #mapbox{position:absolute!important;inset:0;border:1px solid var(--line);border-radius:12px;z-index:0}
-.mapstat{position:absolute;z-index:500;left:50%;transform:translateX(-50%);top:8px;max-width:calc(100% - 110px);background:rgba(248,239,217,.94);border:1px solid var(--line);border-radius:3px;padding:3px 9px;font-size:.78rem;color:var(--muted);text-align:center;pointer-events:none}
+.mapstat{position:absolute;z-index:500;left:50%;transform:translateX(-50%);top:8px;max-width:calc(100% - 120px);background:rgba(248,239,217,.94);border:1px solid var(--line);border-radius:3px;padding:3px 9px;font-size:.78rem;color:var(--muted);text-align:center;pointer-events:none}
+.mapbtn{position:absolute;z-index:500;top:10px;right:10px;width:36px;height:36px;padding:6px;border:2px solid rgba(0,0,0,.2);border-radius:4px;background:#fff;color:var(--accent);cursor:pointer;background-clip:padding-box}
+.mapbtn svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.mapbtn[aria-pressed=false]{color:var(--muted);background:#eee}
+.mapbtn[aria-pressed=false] svg{opacity:.5}
 .mapstat.err{color:var(--warn);border-color:var(--warn)}
 .mapstat:empty{display:none}
 .leaflet-container{font:inherit}
@@ -7843,7 +7847,7 @@ et: {
  'btn.continue':'Jätka','btn.playAgain':'Mängi uuesti','btn.restart':'Alusta otsast','btn.start':'Alusta','btn.delete':'✕ Kustuta','btn.cancel':'Tühista','btn.ok':'OK','btn.close':'Sulge',
  'intro.continue':'Jätka mängu','intro.other':'Vali teine kassett',
  'detail.back':'← Tagasi','detail.sound':'▶ Esita heli','cmd.nothing':'Pole midagi saadaval.','cmd.pick':'– vali sihtmärk',
- 'map.recenter':'⌖ Keskenda','map.tilesOn':'Aluskaart: sees','map.tilesOff':'Aluskaart: väljas','map.north':'Põhja','map.west':'Läände','map.east':'Itta','map.south':'Lõunasse',
+ 'map.recenter':'⌖ Minu asukoht','map.fitNear':'⚑ Mina + punkt','map.tilesOn':'Aluskaart: sees','map.tilesOff':'Aluskaart: väljas','map.north':'Põhja','map.west':'Läände','map.east':'Itta','map.south':'Lõunasse',
  'map.step':'Samm','map.hint':'Simulatsioonis saad ka kaardil klõpsata, et liikuda.',
  'map.pos':'Asukoht: {lat}, {lon} (±{acc} m)','map.nopos':'Otsin GPS-signaali…','map.noposSim':'Puuduta kaarti, et asukoht valida.','map.gpsErr':'GPS ei tööta: {m}','gps.denied':'asukoha luba puudub',
  'menu.home':'⌂ Avaleht (mäng salvestatakse)','menu.finish':'⚑ Lõpeta seiklus','menu.about':'Teave ja litsentsid','menu.builder':'🛠 Kasseti ehitaja','menu.builderBack':'← Tagasi ehitajasse (mäng salvestatakse)','menu.lang':'Keel',
@@ -7876,7 +7880,7 @@ en: {
  'btn.continue':'Continue','btn.playAgain':'Play again','btn.restart':'Start over','btn.start':'Start','btn.delete':'✕ Delete','btn.cancel':'Cancel','btn.ok':'OK','btn.close':'Close',
  'intro.continue':'Continue game','intro.other':'Choose another cartridge',
  'detail.back':'← Back','detail.sound':'▶ Play sound','cmd.nothing':'Nothing available.','cmd.pick':'– choose a target',
- 'map.recenter':'⌖ Center','map.tilesOn':'Basemap: on','map.tilesOff':'Basemap: off','map.north':'North','map.west':'West','map.east':'East','map.south':'South',
+ 'map.recenter':'⌖ My location','map.fitNear':'⚑ Me + point','map.tilesOn':'Basemap: on','map.tilesOff':'Basemap: off','map.north':'North','map.west':'West','map.east':'East','map.south':'South',
  'map.step':'Step','map.hint':'In simulation you can also tap the map to move.',
  'map.pos':'Position: {lat}, {lon} (±{acc} m)','map.nopos':'Searching for GPS…','map.noposSim':'Tap the map to set your position.','map.gpsErr':'No GPS: {m}','gps.denied':'location permission denied',
  'menu.home':'⌂ Home (the game is saved)','menu.finish':'⚑ Finish adventure','menu.about':'About and licences','menu.builder':'🛠 Cartridge builder','menu.builderBack':'← Back to builder (the game is saved)','menu.lang':'Language',
@@ -8381,10 +8385,12 @@ function resetMapLayers(){
 function buildMap(){
   mapWrap = document.createElement('div');
   mapWrap.id = 'mapwrap';
-  mapWrap.innerHTML = `<div class="mapholder"><div id="mapbox"></div><div id="posinfo" class="mapstat"></div></div>
+  mapWrap.innerHTML = `<div class="mapholder"><div id="mapbox"></div><div id="posinfo" class="mapstat"></div>
+    <button class="mapbtn" id="tilesBtn"><svg viewBox="0 0 24 24"><path d="M12 3 2 8l10 5 10-5z"/><path d="m2 13 10 5 10-5"/><path d="m2 17.5 10 5 10-5" opacity=".55"/></svg></button></div>
     <p style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0">
       <button class="btn ghost sm" id="recenter">${t('map.recenter')}</button>
-      <button class="btn ghost sm" id="tilesBtn"></button></p>
+      <button class="btn ghost sm" id="fitNear">${t('map.fitNear')}</button>
+</p>
     <div class="ctl" id="simctl">
       <div class="pad">
         <span></span><button data-d="1,0" aria-label="${t('map.north')}">↑</button><span></span>
@@ -8402,10 +8408,24 @@ function buildMap(){
   if (tilesOn()) tileLayer.addTo(lmap);
   lmap.setView([58.6, 25], 7);
   lmap.on('click', ev => { if (state.mode === 'sim') setPos(ev.latlng.lat, ev.latlng.lng, 5); });
-  lmap.on('dragstart', () => { state.follow = false; });
+  lmap.on('dragstart', () => { state.follow = false; state.followMe = false; });
   mapWrap.querySelectorAll('.pad button[data-d]').forEach(b => b.onclick = () => { const [n, e] = b.dataset.d.split(',').map(Number); nudge(n, e); });
   mapWrap.querySelectorAll('#stepSeg button').forEach(b => b.onclick = () => { state.simStep = +b.dataset.s; syncMapControls(); });
-  mapWrap.querySelector('#recenter').onclick = () => { state.follow = true; fitMap(); };
+  // my location: centre on the player and keep following; without a position show the zones
+  mapWrap.querySelector('#recenter').onclick = () => {
+    if (!state.pos) return fitMap();
+    state.follow = true; state.followMe = true;
+    lmap.setView([state.pos.lat, state.pos.lon], Math.max(lmap.getZoom(), 17));
+  };
+  // me + nearest point: zoom out just enough to show the player and the nearest visible zone
+  mapWrap.querySelector('#fitNear').onclick = () => {
+    const s = state.snap; state.followMe = false;
+    if (!s || !state.pos) return fitMap();
+    const zs = s.zones.filter(z => z.points.length);
+    if (!zs.length) return fitMap();
+    const near = zs.reduce((a, z) => (z.distance >= 0 && (a.distance < 0 || z.distance < a.distance)) ? z : a, zs[0]);
+    lmap.fitBounds(L.latLngBounds(near.points.concat([[state.pos.lat, state.pos.lon]])), { padding: [44, 44], maxZoom: 18 });
+  };
   mapWrap.querySelector('#tilesBtn').onclick = () => {
     if (tilesOn()){ ls.set('wheremego:tiles', 'off'); lmap.removeLayer(tileLayer); } else { ls.del('wheremego:tiles'); tileLayer.addTo(lmap); }
     syncMapControls();
@@ -8414,7 +8434,8 @@ function buildMap(){
 function syncMapControls(){
   mapWrap.querySelector('#simctl').hidden = state.mode !== 'sim'; mapWrap.classList.toggle('simon', state.mode === 'sim');
   mapWrap.querySelectorAll('#stepSeg button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.s === state.simStep));
-  mapWrap.querySelector('#tilesBtn').textContent = tilesOn() ? t('map.tilesOn') : t('map.tilesOff');
+  const tb = mapWrap.querySelector('#tilesBtn'), tl = tilesOn() ? t('map.tilesOn') : t('map.tilesOff');
+  tb.title = tl; tb.setAttribute('aria-label', tl); tb.setAttribute('aria-pressed', tilesOn());
 }
 const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
@@ -8464,7 +8485,7 @@ function updateMap(){
     } else if (accCircle){ accCircle.remove(); accCircle = null; }
   }
   if (!state.mapFitted || (state.pos && !state.posFitted)){ fitMap(); if (state.pos) state.posFitted = true; }
-  else if (state.pos && state.follow && nearestZone() < 3000 &&
+  else if (state.pos && state.follow && (state.followMe || nearestZone() < 3000) &&
            (state.mode === 'gps' || !lmap.getBounds().pad(-0.1).contains([state.pos.lat, state.pos.lon])))
     lmap.panTo([state.pos.lat, state.pos.lon]);
   const pi = mapWrap.querySelector('#posinfo');

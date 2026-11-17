@@ -9,7 +9,7 @@ Object.assign(I18N.et, {
  'v.addZone':'+ Lisa asukoht','v.addItem':'+ Lisa ese','v.addChar':'+ Lisa tegelane','v.addTask':'+ Lisa ülesanne','v.addTimer':'+ Lisa taimer','v.addQ':'+ Lisa küsimus',
  'v.newZone':'Asukoht','v.newItem':'Ese','v.newChar':'Tegelane','v.newTask':'Ülesanne','v.newTimer':'Taimer','v.newQ':'Küsimus',
  'v.name':'Nimi','v.desc':'Kirjeldus','v.visible':'Nähtav alguses','v.active':'Aktiivne alguses','v.del':'Kustuta','v.delConfirm':'Kustutan «{n}»?',
- 'v.lat':'Laiuskraad','v.lon':'Pikkuskraad','v.radius':'Raadius (m)','v.pick':'🗺 Vali kaardilt','v.here':'📍 Minu asukoht','v.mapOk':'Kasuta seda kohta','v.mapHint':'Puuduta kaarti, et asukoht valida.',
+ 'v.lat':'Laiuskraad','v.lon':'Pikkuskraad','v.radius':'Raadius (m)','v.pick':'🗺 Vali kaardilt','v.here':'◎ Minu asukoht','v.mapOk':'Kasuta seda kohta','v.mapHint':'Puuduta kaarti, et asukoht valida.',
  'v.onEnter':'Kui mängija siseneb asukohta','v.onExit':'Kui mängija lahkub asukohast','v.onElapsed':'Kui aeg saab täis','v.secs':'Kestus (sekundit)',
  'v.where':'Alguses asub','v.wherePlayer':'mängija varustuses','v.whereNone':'ei kusagil (ilmub hiljem)','v.whereZone':'asukohas «{n}»',
  'v.cmds':'Nupud (mida mängija saab teha)','v.addCmd':'+ Lisa nupp','v.cmdName':'Nupu tekst','v.cmdWhen':'Kui mängija vajutab nuppu «{n}»','v.cmdLook':'Vaata','v.cmdTake':'Võta',
@@ -37,7 +37,7 @@ Object.assign(I18N.en, {
  'v.addZone':'+ Add location','v.addItem':'+ Add item','v.addChar':'+ Add character','v.addTask':'+ Add task','v.addTimer':'+ Add timer','v.addQ':'+ Add question',
  'v.newZone':'Location','v.newItem':'Item','v.newChar':'Character','v.newTask':'Task','v.newTimer':'Timer','v.newQ':'Question',
  'v.name':'Name','v.desc':'Description','v.visible':'Visible at start','v.active':'Active at start','v.del':'Delete','v.delConfirm':'Delete "{n}"?',
- 'v.lat':'Latitude','v.lon':'Longitude','v.radius':'Radius (m)','v.pick':'🗺 Pick on map','v.here':'📍 My location','v.mapOk':'Use this spot','v.mapHint':'Tap the map to choose the location.',
+ 'v.lat':'Latitude','v.lon':'Longitude','v.radius':'Radius (m)','v.pick':'🗺 Pick on map','v.here':'◎ My location','v.mapOk':'Use this spot','v.mapHint':'Tap the map to choose the location.',
  'v.onEnter':'When the player enters the location','v.onExit':'When the player leaves the location','v.onElapsed':'When the time runs out','v.secs':'Duration (seconds)',
  'v.where':'At the start it is','v.wherePlayer':'in the player\'s inventory','v.whereNone':'nowhere (appears later)','v.whereZone':'at location "{n}"',
  'v.cmds':'Buttons (what the player can do)','v.addCmd':'+ Add button','v.cmdName':'Button text','v.cmdWhen':'When the player presses "{n}"','v.cmdLook':'Look','v.cmdTake':'Take',
@@ -293,7 +293,7 @@ const A = s => esc(String(s));
 function selHTML(opts, val, attrs) { return `<select ${attrs}>${opts.map(([v, l]) => `<option value="${A(v)}"${String(v) === String(val) ? ' selected' : ''}>${A(l)}</option>`).join('')}</select>`; }
 const objOpts = (kind) => [[0, t('v.none')]].concat(V[KINDS[kind]].map(o => [o.id, o.name]));
 const mediaOpts = () => [[0, t('b.none')]].concat(host.B.media.map((m, i) => [i + 1, (i + 1) + '. ' + m.name]));
-const anyObjOpts = () => [['', t('v.none')]].concat(['z', 'i', 'c', 'k'].flatMap(k => V[KINDS[k]].map(o => [k + o.id, ({ z: '📍', i: '🎒', c: '🧑', k: '☑' })[k] + ' ' + o.name])));
+const anyObjOpts = () => [['', t('v.none')]].concat(['z', 'i', 'c', 'k'].flatMap(k => V[KINDS[k]].map(o => [k + o.id, ({ z: '⚑', i: '🎒', c: '🧑', k: '☑' })[k] + ' ' + o.name])));
 
 function condHTML(c, key, i) {
   const at = f => `class="af" data-list="${A(key)}" data-i="${i}" data-f="cond.${f}"`;
@@ -341,7 +341,7 @@ function cmdsHTML(kind, o) {
     + `<button class="btn sm ghost" data-addcmd="${kind}:${o.id}">${t('v.addCmd')}</button>`;
 }
 function objHTML(kind, o) {
-  const icon = { z: '📍', i: '🎒', c: '🧑', k: '☑', m: '⏱', q: '❓' }[kind];
+  const icon = { z: '<span class="zic">⚑</span>', i: '<svg viewBox="0 0 24 24" width="1.1em" height="1.1em" style="vertical-align:-.2em" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 7a4 4 0 0 1 8 0"/><rect x="5" y="7" width="14" height="14" rx="4"/></svg>', c: '🧑', k: '☑', m: '⏱', q: '<b style="color:#7a2e1d">?</b>' }[kind];
   let sub = '', body = `<label>${t('v.name')}</label><input type="text" ${of(kind, o, 'name')} value="${A(o.name)}">`;
   if (kind !== 'm' && kind !== 'q') body += `<label>${t('v.desc')}</label><textarea ${of(kind, o, 'desc', 'rows="2"')}>${A(o.desc)}</textarea>`;
   if (kind === 'z') {
@@ -371,10 +371,12 @@ function objHTML(kind, o) {
     }
   }
   body += `<div class="row"><button class="btn sm ghost" data-delobj="${kind}:${o.id}">🗑 ${t('v.del')}</button></div>`;
-  return `<details class="oc" data-oid="${kind}${o.id}"${host.open.has(kind + o.id) ? ' open' : ''}><summary>${icon} ${A(o.name)}</summary><div class="ob">${body}</div></details>`;
+  return `<details class="oc" data-oid="${kind}${o.id}"${host.open.has(kind + o.id) ? ' open' : ''}><summary>${icon} <span class="onm">${A(o.name)}</span></summary><div class="ob">${body}</div></details>`;
 }
 
 const CSS = `
+.vis .zic{color:#7a2e1d;font-size:1.05em}
+.pflag{background:none;border:0}
 .vis h3{margin:.9em 0 .3em;font-size:1rem} .vis h4{margin:.9em 0 .2em;font-size:.85rem;color:var(--muted)}
 .vis details.oc{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:8px 0} .vis details.oc>summary{font-weight:600}
 .vis .ob textarea{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);resize:vertical}
@@ -457,7 +459,7 @@ function objField(el) {
   const o = find(el.dataset.kind, el.dataset.id), f = el.dataset.f;
   let v = el.type === 'checkbox' ? el.checked : el.value; if (f === 'media') v = +v;
   o[f] = v; touch();
-  if (f === 'name') { const s = el.closest('details').querySelector('summary'); s.textContent = s.textContent.split(' ')[0] + ' ' + v; }
+  if (f === 'name') { const s = el.closest('details').querySelector('summary .onm'); if (s) s.textContent = v; }
 }
 
 function pickOnMap(z) {
@@ -468,7 +470,8 @@ function pickOnMap(z) {
   const m = L.map('pmap').setView(pos, 17);
   if (CFG.tileUrl) L.tileLayer(CFG.tileUrl, { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(m);
   const r = Math.max(5, parseFloat(z.r) || 30);
-  const mk = L.marker(pos).addTo(m), ci = L.circle(pos, { radius: r, color: '#4fb284' }).addTo(m);
+  const flag = L.divIcon({ className: 'pflag', html: '<svg viewBox="0 0 24 32" width="28" height="36"><path d="M4 31V3" stroke="#3b2a18" stroke-width="2.4" stroke-linecap="round"/><path d="M5 4h15l-4 5 4 5H5z" fill="#7a2e1d" stroke="#4d1c11" stroke-width="1"/></svg>', iconSize: [28, 36], iconAnchor: [5, 35] });
+  const mk = L.marker(pos, { icon: flag, interactive: false }).addTo(m), ci = L.circle(pos, { radius: r, color: '#8a3a1f', weight: 2, fillOpacity: .15 }).addTo(m);
   m.on('click', e => { pos = [e.latlng.lat, e.latlng.lng]; mk.setLatLng(pos); ci.setLatLng(pos); });
   const close = () => { m.remove(); ov.remove(); };
   $('#pCancel').onclick = close;
