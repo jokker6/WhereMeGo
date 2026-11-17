@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>WhereMeGo</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#efe3c8">
+<meta name="theme-color" content="#f7eed8">
 <link rel="icon" href="icon-192.png">
 <script src="config.js"></script>
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -26,6 +26,11 @@ header,main,nav{position:relative;z-index:1}
 header{display:flex;align-items:center;gap:8px;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top));
   background:rgba(248,239,217,.92);border-bottom:2px solid var(--rule)}
 header h1{font-size:1.05rem;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant:small-caps;letter-spacing:1px}
+.instbar{position:relative;z-index:2;display:flex;align-items:center;gap:10px;padding:8px 10px 8px 14px;background:var(--surface);border-bottom:1px solid var(--rule);font-size:.9rem;line-height:1.3}
+.instbar[hidden]{display:none}
+.instbar svg{flex:none}.instbar span{flex:1}
+.instbar .btn{padding:7px 14px;font-size:.9rem;box-shadow:0 2px 0 #4d1c11}
+.instbar .iconbtn{flex:none;font-size:1rem;color:var(--muted)}
 main{flex:1;overflow:auto;padding:16px;-webkit-overflow-scrolling:touch}
 main:has(>.hero.start){padding:12px;overflow:hidden;display:flex}
 nav button b svg{width:1.3rem;height:1.3rem;display:block;margin:0 auto;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -794,6 +799,8 @@ svg.leaflet-image-layer.leaflet-interactive path {
   <div class="flags" id="flags" hidden><button data-l="et" aria-label="Eesti keel" title="Eesti"><svg viewBox="0 0 33 22"><rect width="33" height="7.34" fill="#0072ce"/><rect y="7.33" width="33" height="7.34" fill="#000"/><rect y="14.66" width="33" height="7.34" fill="#fff"/></svg></button><button data-l="en" aria-label="English" title="English"><svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#012169"/><path d="M0 0l60 40M60 0L0 40" stroke="#fff" stroke-width="8"/><path d="M0 0l60 40M60 0L0 40" stroke="#c8102e" stroke-width="3"/><path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="13"/><path d="M30 0v40M0 20h60" stroke="#c8102e" stroke-width="8"/></svg></button></div>
   <button class="iconbtn" id="menuBtn" aria-label="Menüü" data-i18n-aria="menu">⋮</button>
 </header>
+<div id="installBar" class="instbar" hidden><svg viewBox="0 0 100 100" width="30" height="30" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="none" stroke="#8a6a3c" stroke-width="6"/><path d="M50 12 58 50 50 88 42 50z" fill="#7a2e1d"/><path d="M12 50 50 42 88 50 50 58z" fill="#8a6a3c"/></svg>
+  <span id="instText"></span><button class="btn sm" id="instBtn" hidden></button><button class="iconbtn" id="instClose">✕</button></div>
 <main id="view"></main>
 <nav id="nav" hidden>
   <button data-tab="map"><b>◎</b><span data-i18n="nav.map">Kaart</span></button>
@@ -7839,7 +7846,7 @@ et: {
  'log.saveNow':'Salvesta kohe','log.restart':'Alusta otsast','log.auto':'Mäng salvestub automaatselt selles brauseris','log.last':' (viimati {t})',
  'log.empty':'(tühi)','log.saved':'Salvestatud','log.confirmRestart':'Kustutan salvestuse ja alustan kasseti otsast?',
  'start.sub':'Geopeituse kassettide mängija','start.tagline':'Kassetid jäävad sinu seadmesse, midagi ei saadeta serverisse.','start.pick':'Vali kassett',
- 'start.drag':'Kui nupp ei tee midagi, lohista .gwc-fail siia lehele.','start.resume':'Jätka pooleli kassetti','start.savedAt':'salvestatud {d}',
+ 'start.drag':'Kui nupp ei tee midagi, lohista .gwc-fail siia lehele.','inst.text':'Installi WhereMeGo telefoni – töötab ka ilma internetita.','inst.btn':'Installi','inst.ios':'Lisa WhereMeGo avakuvale: vajuta Jaga ja vali „Lisa avakuvale”.','inst.menu':'Installi WhereMeGo: ava brauseri menüü ⋮ ja vali „Installi rakendus” või „Lisa avakuvale”.','inst.close':'Sulge','start.resume':'Jätka pooleli kassetti','start.savedAt':'salvestatud {d}',
  'start.loading':'Laen: {name} …','err':'Viga: {m}','start.pickFail':'Failivalija ei avane: {m}',
  'hist.btn':'Eelmised seiklused ({n})','hist.title':'Eelmised seiklused','hist.home':'← Avaleht','hist.loading':'Laen…','hist.empty':'Siin pole veel midagi.',
  'hist.done':'✓ Läbitud','hist.open':'Pooleli · salvestatud {d}','hist.new':'Pole alustatud','hist.readErr':'Ajalugu ei saa lugeda: {m}',
@@ -7872,7 +7879,7 @@ en: {
  'log.saveNow':'Save now','log.restart':'Start over','log.auto':'The game is saved automatically in this browser','log.last':' (last saved {t})',
  'log.empty':'(empty)','log.saved':'Saved','log.confirmRestart':'Delete the saved game and start the cartridge over?',
  'start.sub':'A player for geocaching cartridges','start.tagline':'Cartridges stay on your device; nothing is sent to a server.','start.pick':'Choose a cartridge',
- 'start.drag':'If the button does nothing, drag a .gwc file onto this page.','start.resume':'Continue your game in progress','start.savedAt':'saved {d}',
+ 'start.drag':'If the button does nothing, drag a .gwc file onto this page.','inst.text':'Install WhereMeGo on your phone – it works offline too.','inst.btn':'Install','inst.ios':'Add WhereMeGo to your home screen: tap Share and choose “Add to Home Screen”.','inst.menu':'Install WhereMeGo: open the browser menu ⋮ and choose “Install app” or “Add to Home screen”.','inst.close':'Close','start.resume':'Continue your game in progress','start.savedAt':'saved {d}',
  'start.loading':'Loading: {name} …','err':'Error: {m}','start.pickFail':'The file picker will not open: {m}',
  'hist.btn':'Previous adventures ({n})','hist.title':'Previous adventures','hist.home':'← Home','hist.loading':'Loading…','hist.empty':'Nothing here yet.',
  'hist.done':'✓ Completed','hist.open':'In progress · saved {d}','hist.new':'Not started','hist.readErr':'Cannot read history: {m}',
@@ -8203,6 +8210,7 @@ function render(){
   if (s) for (const [tab, n] of [['yousee', s.yousee.length], ['inv', s.inventory.length], ['tasks', s.tasks.filter(t=>!t.complete).length]]){
     if (n){ const b = document.querySelector(`#nav [data-tab=${tab}]`); b.insertAdjacentHTML('beforeend', `<span class="dot">${n}</span>`); }
   }
+  updateInstallBar();
   if (state.tab === 'start') return renderStart(v);
   if (state.tab === 'history') return renderHistory(v);
   if (state.tab === 'builder') return renderBuilderTab(v);
@@ -8606,6 +8614,33 @@ const cartDel = key => idbTx('readwrite', s => s.delete(key));
 async function cartSave(rec){
   try { await idbTx('readwrite', s => s.put(rec)); if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); }
   catch(e){ log(t('log.cartSaveFail', {m: e && e.message}), true); }
+}
+
+/* ------------------------------------------------------------------ "install the app" bar (start page, until installed or closed) */
+let installEvt = null, installHint = '';
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches || navigator.standalone === true;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+function updateInstallBar(){
+  const bar = $('#installBar'); if (!bar) return;
+  const show = state.tab === 'start' && !isStandalone() && !ls.get('wheremego:installHide') && !!installHint;
+  bar.hidden = !show; if (!show) return;
+  $('#instText').textContent = t(installHint);
+  $('#instBtn').hidden = !installEvt; $('#instBtn').textContent = t('inst.btn');
+  $('#instClose').setAttribute('aria-label', t('inst.close'));
+}
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; installHint = 'inst.text'; updateInstallBar(); });
+window.addEventListener('appinstalled', () => { installEvt = null; ls.set('wheremego:installHide', '1'); updateInstallBar(); });
+$('#instBtn').onclick = async () => {
+  if (!installEvt) return;
+  const e = installEvt; installEvt = null;
+  try { e.prompt(); const r = await e.userChoice; if (r && r.outcome === 'accepted') ls.set('wheremego:installHide', '1'); } catch(err){}
+  updateInstallBar();
+};
+$('#instClose').onclick = () => { ls.set('wheremego:installHide', '1'); updateInstallBar(); };
+if (!isStandalone()){
+  if (isIOS()){ installHint = 'inst.ios'; updateInstallBar(); }
+  // phones whose browser never offers the install prompt (e.g. Firefox): show the menu hint instead
+  else setTimeout(() => { if (!installHint && matchMedia('(pointer:coarse)').matches){ installHint = 'inst.menu'; updateInstallBar(); } }, 3000);
 }
 
 /* ------------------------------------------------------------------ offline (service worker) */
