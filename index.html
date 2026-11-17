@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>WhereMeGo</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#1f6b4a">
+<meta name="theme-color" content="#efe3c8">
 <link rel="icon" href="icon-192.png">
 <script src="config.js"></script>
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -13,47 +13,61 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>
 :root{
-  --bg:#f4f1ea; --surface:#fffdf8; --ink:#1f2a24; --muted:#6a746d; --line:#ddd6c6;
-  --accent:#1f6b4a; --accent-ink:#fff; --warn:#b4541a; --zone:#2f7a5a; --you:#c0392b;
-}
-@media (prefers-color-scheme: dark){
-  :root{--bg:#141815; --surface:#1d231f; --ink:#e8ece6; --muted:#98a39b; --line:#2c352f;
-    --accent:#4fb284; --accent-ink:#0c1410; --warn:#e0884f; --zone:#4fb284; --you:#ff6b5a;}
+  --bg:#efe3c8; --surface:#f8efd9; --ink:#3b2a18; --muted:#6b5030; --line:#c9ad7c;
+  --accent:#7a2e1d; --accent-ink:#f6e9cf; --warn:#b0451f; --zone:#8a3a1f; --you:#c0392b;
+  --font:Georgia,"Times New Roman",serif; --rule:#8a6a3c;
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
-body{background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  display:flex;flex-direction:column;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--font);
+  display:flex;flex-direction:column;-webkit-text-size-adjust:100%;position:relative}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 50% 40%,transparent 45%,rgba(201,168,112,.28) 100%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 844' preserveAspectRatio='xMidYMid slice'%3E%3Cg fill='none' stroke='%23a8814d' stroke-width='1.2' opacity='.5'%3E%3Cellipse cx='320' cy='700' rx='34' ry='22' transform='rotate(-18 320 700)'/%3E%3Cellipse cx='320' cy='700' rx='60' ry='41' transform='rotate(-18 320 700)'/%3E%3Cellipse cx='320' cy='700' rx='86' ry='60' transform='rotate(-18 320 700)'/%3E%3Cellipse cx='320' cy='700' rx='112' ry='79' transform='rotate(-18 320 700)'/%3E%3Cellipse cx='320' cy='700' rx='138' ry='98' transform='rotate(-18 320 700)'/%3E%3Cellipse cx='320' cy='700' rx='164' ry='117' transform='rotate(-18 320 700)'/%3E%3Cellipse cx='320' cy='700' rx='190' ry='136' transform='rotate(-18 320 700)'/%3E%3Cellipse cx='320' cy='700' rx='216' ry='155' transform='rotate(-18 320 700)'/%3E%3Cellipse cx='320' cy='700' rx='242' ry='174' transform='rotate(-18 320 700)'/%3E%3Cellipse cx='320' cy='700' rx='268' ry='193' transform='rotate(-18 320 700)'/%3E%3Cellipse cx='320' cy='700' rx='294' ry='212' transform='rotate(-18 320 700)'/%3E%3Cellipse cx='320' cy='700' rx='320' ry='231' transform='rotate(-18 320 700)'/%3E%3Cellipse cx='50' cy='150' rx='26' ry='16' transform='rotate(24 50 150)'/%3E%3Cellipse cx='50' cy='150' rx='48' ry='30' transform='rotate(24 50 150)'/%3E%3Cellipse cx='50' cy='150' rx='70' ry='44' transform='rotate(24 50 150)'/%3E%3Cellipse cx='50' cy='150' rx='92' ry='58' transform='rotate(24 50 150)'/%3E%3Cellipse cx='50' cy='150' rx='114' ry='72' transform='rotate(24 50 150)'/%3E%3Cellipse cx='50' cy='150' rx='136' ry='86' transform='rotate(24 50 150)'/%3E%3Cellipse cx='50' cy='150' rx='158' ry='100' transform='rotate(24 50 150)'/%3E%3Cellipse cx='50' cy='150' rx='180' ry='114' transform='rotate(24 50 150)'/%3E%3Cellipse cx='330' cy='120' rx='20' ry='14' transform='rotate(30 330 120)'/%3E%3Cellipse cx='330' cy='120' rx='40' ry='27' transform='rotate(30 330 120)'/%3E%3Cellipse cx='330' cy='120' rx='60' ry='40' transform='rotate(30 330 120)'/%3E%3Cellipse cx='330' cy='120' rx='80' ry='53' transform='rotate(30 330 120)'/%3E%3Cellipse cx='330' cy='120' rx='100' ry='66' transform='rotate(30 330 120)'/%3E%3Cellipse cx='330' cy='120' rx='120' ry='79' transform='rotate(30 330 120)'/%3E%3Cellipse cx='330' cy='120' rx='140' ry='92' transform='rotate(30 330 120)'/%3E%3Cellipse cx='40' cy='520' rx='22' ry='14' transform='rotate(-20 40 520)'/%3E%3Cellipse cx='40' cy='520' rx='44' ry='29' transform='rotate(-20 40 520)'/%3E%3Cellipse cx='40' cy='520' rx='66' ry='44' transform='rotate(-20 40 520)'/%3E%3Cellipse cx='40' cy='520' rx='88' ry='59' transform='rotate(-20 40 520)'/%3E%3Cellipse cx='40' cy='520' rx='110' ry='74' transform='rotate(-20 40 520)'/%3E%3Cellipse cx='40' cy='520' rx='132' ry='89' transform='rotate(-20 40 520)'/%3E%3Cellipse cx='40' cy='520' rx='154' ry='104' transform='rotate(-20 40 520)'/%3E%3Cellipse cx='195' cy='330' rx='60' ry='30' transform='rotate(8 195 330)' opacity='.6'/%3E%3Cellipse cx='195' cy='330' rx='94' ry='52' transform='rotate(8 195 330)' opacity='.6'/%3E%3Cellipse cx='195' cy='330' rx='128' ry='74' transform='rotate(8 195 330)' opacity='.6'/%3E%3Cellipse cx='195' cy='330' rx='162' ry='96' transform='rotate(8 195 330)' opacity='.6'/%3E%3Cellipse cx='180' cy='800' rx='24' ry='16' transform='rotate(10 180 800)'/%3E%3Cellipse cx='180' cy='800' rx='48' ry='32' transform='rotate(10 180 800)'/%3E%3Cellipse cx='180' cy='800' rx='72' ry='48' transform='rotate(10 180 800)'/%3E%3Cellipse cx='180' cy='800' rx='96' ry='64' transform='rotate(10 180 800)'/%3E%3Cellipse cx='180' cy='800' rx='120' ry='80' transform='rotate(10 180 800)'/%3E%3Cellipse cx='180' cy='800' rx='144' ry='96' transform='rotate(10 180 800)'/%3E%3Cellipse cx='360' cy='420' rx='18' ry='12' transform='rotate(-35 360 420)'/%3E%3Cellipse cx='360' cy='420' rx='38' ry='26' transform='rotate(-35 360 420)'/%3E%3Cellipse cx='360' cy='420' rx='58' ry='40' transform='rotate(-35 360 420)'/%3E%3Cellipse cx='360' cy='420' rx='78' ry='54' transform='rotate(-35 360 420)'/%3E%3Cellipse cx='360' cy='420' rx='98' ry='68' transform='rotate(-35 360 420)'/%3E%3C/g%3E%3C/svg%3E") center/cover no-repeat}
+header,main,nav{position:relative;z-index:1}
 header{display:flex;align-items:center;gap:8px;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top));
-  background:var(--surface);border-bottom:1px solid var(--line)}
-header h1{font-size:1rem;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  background:rgba(248,239,217,.92);border-bottom:2px solid var(--rule)}
+header h1{font-size:1.05rem;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant:small-caps;letter-spacing:1px}
 main{flex:1;overflow:auto;padding:16px;-webkit-overflow-scrolling:touch}
-nav{display:flex;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+main:has(>.hero.start){padding:12px}
+nav{display:flex;background:rgba(248,239,217,.95);border-top:2px solid var(--rule);padding-bottom:env(safe-area-inset-bottom)}
 nav button{flex:1;border:0;background:none;color:var(--muted);padding:10px 2px;font:inherit;font-size:.72rem;position:relative}
 nav button b{display:block;font-size:1.15rem;font-weight:400}
 nav button[aria-selected=true]{color:var(--accent);font-weight:600}
 nav .dot{position:absolute;top:6px;right:calc(50% - 18px);min-width:16px;height:16px;border-radius:8px;background:var(--warn);
   color:#fff;font-size:.65rem;line-height:16px;padding:0 4px}
-button.btn,label.btn,a.btn{display:inline-block;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);
-  padding:11px 18px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer;text-align:center}
-button.btn.ghost,label.btn.ghost,a.btn.ghost{background:none;color:var(--accent)}
+button.btn,label.btn,a.btn{display:inline-block;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);
+  padding:11px 18px;border-radius:4px;font:inherit;font-weight:700;letter-spacing:.4px;cursor:pointer;text-align:center;box-shadow:0 3px 0 #4d1c11}
+button.btn:active,a.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #4d1c11}
+button.btn.ghost,label.btn.ghost,a.btn.ghost{background:none;color:var(--accent);box-shadow:none}
 button.btn:disabled{opacity:.45}
 .list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .item{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;
   padding:12px;width:100%;text-align:left;font:inherit;color:inherit}
+.item{border-radius:6px!important}
 .item img{width:48px;height:48px;object-fit:cover;border-radius:8px;flex:none}
 .item .t{flex:1;min-width:0}.item .t b{display:block}.item .t small{color:var(--muted)}
 .arrow{width:30px;height:30px;flex:none;transition:transform .3s}
 .muted{color:var(--muted)} .center{text-align:center}
 .empty{color:var(--muted);text-align:center;padding:32px 0}
-.hero{max-width:520px;margin:6vh auto 0;text-align:center}
+.hero{max-width:520px;margin:2vh auto 0;text-align:center}
+.hero.start{max-width:none;margin:0 auto}
+.hero.start>*{width:100%;max-width:440px;margin-left:auto;margin-right:auto}
 .hero h2{margin:.2em 0}
+.hero.start{position:relative;min-height:calc(100% - 4px);display:flex;flex-direction:column;justify-content:center;padding:34px 30px 26px;border:2px solid var(--rule);outline:1px solid var(--rule);outline-offset:-8px;border-radius:4px;background:rgba(248,239,217,.35)}
+.hero.start .compass{display:block;margin:0 auto}
+.hero.start h2{font-size:2.3rem;font-variant:small-caps;letter-spacing:2px;margin:.25em 0 .05em}
+.hero.start .sub{font-style:italic;color:var(--muted);margin:0 0 4px}
+.rule{height:2px;background:linear-gradient(90deg,transparent,var(--rule),transparent);margin:16px 0}
+.hero.start .btn{display:block;min-width:0;width:100%;font-size:1.1rem;padding:14px}
+.resumecard{display:block;width:100%;text-align:left;background:rgba(248,239,217,.93);border:1px dashed var(--rule);border-radius:3px;padding:12px 14px;margin:0 0 14px;font:inherit;color:var(--ink);cursor:pointer}
+.resumecard b{display:block;font-size:1.05rem}.resumecard span{font-size:.9rem;color:var(--muted)}
+.flags{display:flex;gap:8px;align-items:center}.flags button{border:2px solid transparent;border-radius:3px;padding:0;background:none;line-height:0;cursor:pointer;opacity:.6}
+.flags button[aria-pressed=true]{border-color:var(--accent);opacity:1}.flags svg{width:32px;height:22px;display:block;border-radius:1px;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
 .hero img{max-width:100%;max-height:36vh;border-radius:14px;margin:12px 0}
 .desc{white-space:pre-wrap;word-wrap:break-word}
 .detail img{max-width:100%;border-radius:12px;margin:8px 0}
 .cmds{display:flex;flex-direction:column;gap:8px;margin-top:16px}
 .back{background:none;border:0;color:var(--accent);font:inherit;padding:0 0 10px;font-weight:600}
-canvas{width:100%;height:46vh;min-height:260px;background:var(--surface);border:1px solid var(--line);border-radius:12px;touch-action:none;display:block}
+canvas{width:100%;height:46vh;min-height:260px;background:var(--surface);border:1px solid var(--line);border-radius:6px;touch-action:none;display:block}
 .ctl{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:12px;flex-wrap:wrap}
 .pad{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,48px);gap:4px}
 .pad button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;font-size:1.2rem}
@@ -61,7 +75,7 @@ canvas{width:100%;height:46vh;min-height:260px;background:var(--surface);border:
 .seg button{border:0;background:var(--surface);color:var(--ink);padding:8px 12px;font:inherit;font-size:.85rem}
 .seg button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;z-index:10}
-.modal .card{background:var(--surface);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;
+.modal .card{background:var(--surface);border-top:3px solid var(--rule);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;
   padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
 @media(min-width:600px){.modal{align-items:center}.modal .card{border-radius:18px}}
 .card img{max-width:100%;max-height:34vh;display:block;margin:0 auto 12px;border-radius:10px}
@@ -754,6 +768,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <button data-mode="sim" aria-pressed="true" data-i18n="sim">Simulatsioon</button>
     <button data-mode="gps" aria-pressed="false">GPS</button>
   </div>
+  <div class="flags" id="flags" hidden><button data-l="et" aria-label="Eesti keel" title="Eesti"><svg viewBox="0 0 33 22"><rect width="33" height="7.34" fill="#0072ce"/><rect y="7.33" width="33" height="7.34" fill="#000"/><rect y="14.66" width="33" height="7.34" fill="#fff"/></svg></button><button data-l="en" aria-label="English" title="English"><svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#012169"/><path d="M0 0l60 40M60 0L0 40" stroke="#fff" stroke-width="8"/><path d="M0 0l60 40M60 0L0 40" stroke="#c8102e" stroke-width="3"/><path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="13"/><path d="M30 0v40M0 20h60" stroke="#c8102e" stroke-width="8"/></svg></button></div>
   <button class="iconbtn" id="menuBtn" aria-label="Menüü" data-i18n-aria="menu">⋮</button>
 </header>
 <main id="view"></main>
@@ -7928,7 +7943,7 @@ et: {
  'task.failed':'Ebaõnnestus','task.done':'Tehtud','task.open':'Pooleli','nameless':'(nimeta)',
  'log.saveNow':'Salvesta kohe','log.restart':'Alusta otsast','log.auto':'Mäng salvestub automaatselt selles brauseris','log.last':' (viimati {t})',
  'log.empty':'(tühi)','log.saved':'Salvestatud','log.confirmRestart':'Kustutan salvestuse ja alustan kasseti otsast?',
- 'start.tagline':'Wherigo kassettide mängija. Kassetid jäävad sinu seadmesse, midagi ei saadeta serverisse.','start.pick':'Vali kassett',
+ 'start.sub':'Geopeituse kassettide mängija','start.tagline':'Kassetid jäävad sinu seadmesse, midagi ei saadeta serverisse.','start.pick':'Vali kassett',
  'start.drag':'Kui nupp ei tee midagi, lohista .gwc-fail siia lehele.','start.resume':'Jätka pooleli kassetti','start.savedAt':'salvestatud {d}',
  'start.loading':'Laen: {name} …','err':'Viga: {m}','start.pickFail':'Failivalija ei avane: {m}',
  'hist.btn':'Eelmised seiklused ({n})','hist.title':'Eelmised seiklused','hist.home':'← Avaleht','hist.loading':'Laen…','hist.empty':'Siin pole veel midagi.',
@@ -7940,8 +7955,8 @@ et: {
  'map.recenter':'⌖ Keskenda','map.tilesOn':'Aluskaart: sees','map.tilesOff':'Aluskaart: väljas','map.north':'Põhja','map.west':'Läände','map.east':'Itta','map.south':'Lõunasse',
  'map.step':'Samm','map.hint':'Simulatsioonis saad ka kaardil klõpsata, et liikuda.',
  'map.pos':'Asukoht: {lat}, {lon} (±{acc} m)','map.nopos':'Asukohta pole veel (ootan GPS-i või simulatsiooni).',
- 'menu.home':'⌂ Avaleht (mäng salvestatakse)','menu.finish':'⚑ Lõpeta seiklus','menu.about':'Teave ja litsentsid','menu.lang':'Keel',
- 'menu.confirmFinish':'Lõpetan seikluse? Mängu saad hiljem uuesti alustada.','coffee':'Osta arendajale kohv',
+ 'menu.home':'⌂ Avaleht (mäng salvestatakse)','menu.finish':'⚑ Lõpeta seiklus','menu.about':'Teave ja litsentsid','menu.builder':'🛠 Kasseti ehitaja','menu.builderBack':'← Tagasi ehitajasse (mäng salvestatakse)','menu.lang':'Keel',
+ 'menu.confirmFinish':'Lõpetan seikluse? Mängu saad hiljem uuesti alustada.','coffee':'Osta arendajale kohv','coffee.title':'Osta arendajale kohv','coffee.text':'Aitäh, et WhereMeGo sulle meeldib! Kohvi hind on {a}. Vali, kuidas maksad.','coffee.paypal':'PayPal (kiirlink) – {a}','coffee.bank':'Pangaülekanne','coffee.name':'Saaja','coffee.amount':'Summa','coffee.ref':'Selgitus','coffee.copy':'Kopeeri IBAN','coffee.copied':'Kopeeritud ✓',
  'about.intro':'Avatud lähtekoodiga Wherigo kassettide mängija. Kassetid ja mängu salvestused jäävad sinu seadmesse.',
  'about.built':'Tehtud kasutades: {moon} (MIT, Lua 5.1 VM), Yueliang (MIT, Lua 5.1 kompilaator), {leaf} (BSD-2). Kaardiandmed © {osm} kaastöölised.',
  'about.tm':'Wherigo on Groundspeak, Inc. kaubamärk. WhereMeGo ei ole Groundspeaki toode ega ole sellega seotud.','about.src':'Lähtekood GitHubis',
@@ -7961,7 +7976,7 @@ en: {
  'task.failed':'Failed','task.done':'Done','task.open':'In progress','nameless':'(unnamed)',
  'log.saveNow':'Save now','log.restart':'Start over','log.auto':'The game is saved automatically in this browser','log.last':' (last saved {t})',
  'log.empty':'(empty)','log.saved':'Saved','log.confirmRestart':'Delete the saved game and start the cartridge over?',
- 'start.tagline':'A player for Wherigo cartridges. Cartridges stay on your device; nothing is sent to a server.','start.pick':'Choose a cartridge',
+ 'start.sub':'A player for geocaching cartridges','start.tagline':'Cartridges stay on your device; nothing is sent to a server.','start.pick':'Choose a cartridge',
  'start.drag':'If the button does nothing, drag a .gwc file onto this page.','start.resume':'Continue your game in progress','start.savedAt':'saved {d}',
  'start.loading':'Loading: {name} …','err':'Error: {m}','start.pickFail':'The file picker will not open: {m}',
  'hist.btn':'Previous adventures ({n})','hist.title':'Previous adventures','hist.home':'← Home','hist.loading':'Loading…','hist.empty':'Nothing here yet.',
@@ -7973,8 +7988,8 @@ en: {
  'map.recenter':'⌖ Center','map.tilesOn':'Basemap: on','map.tilesOff':'Basemap: off','map.north':'North','map.west':'West','map.east':'East','map.south':'South',
  'map.step':'Step','map.hint':'In simulation you can also tap the map to move.',
  'map.pos':'Position: {lat}, {lon} (±{acc} m)','map.nopos':'No position yet (waiting for GPS or simulation).',
- 'menu.home':'⌂ Home (the game is saved)','menu.finish':'⚑ Finish adventure','menu.about':'About and licences','menu.lang':'Language',
- 'menu.confirmFinish':'Finish the adventure? You can start it again later.','coffee':'Buy the developer a coffee',
+ 'menu.home':'⌂ Home (the game is saved)','menu.finish':'⚑ Finish adventure','menu.about':'About and licences','menu.builder':'🛠 Cartridge builder','menu.builderBack':'← Back to builder (the game is saved)','menu.lang':'Language',
+ 'menu.confirmFinish':'Finish the adventure? You can start it again later.','coffee':'Buy the developer a coffee','coffee.title':'Buy the developer a coffee','coffee.text':'Thanks for liking WhereMeGo! A coffee costs {a}. Choose how to pay.','coffee.paypal':'PayPal (quick link) – {a}','coffee.bank':'Bank transfer','coffee.name':'Recipient','coffee.amount':'Amount','coffee.ref':'Reference','coffee.copy':'Copy IBAN','coffee.copied':'Copied ✓',
  'about.intro':'An open-source player for Wherigo cartridges. Cartridges and saved games stay on your device.',
  'about.built':'Built with {moon} (MIT, Lua 5.1 VM), Yueliang (MIT, Lua 5.1 compiler) and {leaf} (BSD-2). Map data © {osm} contributors.',
  'about.tm':'Wherigo is a trademark of Groundspeak, Inc. WhereMeGo is not a Groundspeak product and is not affiliated with it.','about.src':'Source code on GitHub',
@@ -8283,7 +8298,9 @@ function render(){
   const v = $('#view'); const s = state.snap;
   document.querySelectorAll('#nav button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === state.tab && !state.detail));
   if (s && s.cart) $('#title').textContent = s.cart.name || 'WhereMeGo';
-  if (['start', 'history', 'builder'].includes(state.tab)) $('#title').textContent = 'WhereMeGo';
+  if (['start', 'history', 'builder'].includes(state.tab)) $('#title').textContent = state.tab === 'start' ? '' : 'WhereMeGo';
+  $('#flags').hidden = state.tab !== 'start';
+  document.querySelectorAll('#flags button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.l === lang)));
   document.querySelectorAll('#nav .dot').forEach(d => d.remove());
   if (s) for (const [tab, n] of [['yousee', s.yousee.length], ['inv', s.inventory.length], ['tasks', s.tasks.filter(t=>!t.complete).length]]){
     if (n){ const b = document.querySelector(`#nav [data-tab=${tab}]`); b.insertAdjacentHTML('beforeend', `<span class="dot">${n}</span>`); }
@@ -8341,12 +8358,13 @@ function renderBuilderTab(v){
 
 function renderStart(v){
   $('#nav').hidden = true; $('#modeSeg').hidden = true;
-  v.innerHTML = `<div class="hero"><h2>WhereMeGo</h2>
-    <p class="muted">${t('start.tagline')}</p>
+  v.innerHTML = `<div class="hero start"><svg class="compass" viewBox="0 0 100 100" width="84" height="84"><circle cx="50" cy="50" r="44" fill="none" stroke="#8a6a3c" stroke-width="3"/><circle cx="50" cy="50" r="36" fill="none" stroke="#8a6a3c"/><path d="M50 10 58 50 50 90 42 50z" fill="#7a2e1d"/><path d="M10 50 50 42 90 50 50 58z" fill="#8a6a3c"/><circle cx="50" cy="50" r="5" fill="#efe3c8" stroke="#3b2a18"/><text x="50" y="8" text-anchor="middle" font-size="9" font-weight="bold" fill="#3b2a18">N</text></svg><h2>WhereMeGo</h2>
+    <p class="sub">${t('start.sub')}</p><div class="rule"></div>
     <div id="resumeBox"></div>
-    <p><button class="btn" id="pick">${t('start.pick')}</button></p>
-    <div id="histBox"></div>
+    <p style="margin:0 0 14px"><button class="btn" id="pick">${t('start.pick')}</button></p>
+    <div id="histBox"></div><div class="rule"></div>
     <input type="file" id="file" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" tabindex="-1">
+    <p class="muted small" style="font-style:italic;margin:6px 0">${t('start.tagline')}</p>
     <p class="muted small">${t('start.drag')}</p>
     <p class="err" id="startErr"></p></div>`;
   const openBuf = async (buf, fname) => {
@@ -8365,14 +8383,12 @@ function renderStart(v){
     if (state.tab !== 'start' || !list || !list.length) return;
     const cur = list.find(c => c.key === lastKey() && savedGame(c.key) && !isDone(c.key));
     if (cur){
-      $('#resumeBox').innerHTML = `<p><button class="btn" id="resumeLast">${t('start.resume')}</button><br>
-        <small class="muted">${esc(cur.title || cur.file)} · ${esc(t('start.savedAt', {d: fmtDate(savedGame(cur.key).t)}))}</small></p>`;
-      $('#pick').classList.add('ghost');
+      $('#resumeBox').innerHTML = `<button class="resumecard" id="resumeLast"><b>${t('start.resume')}</b><span>${esc(cur.title || cur.file)} · ${esc(t('start.savedAt', {d: fmtDate(savedGame(cur.key).t)}))}</span></button>`;
       $('#resumeLast').onclick = async () => {
         try { await playFromLibrary(cur, true); } catch(err){ $('#startErr').textContent = t('err', {m: err.message || err}); }
       };
     }
-    $('#histBox').innerHTML = `<p><button class="btn ghost" id="hist">${t('hist.btn', {n: list.length})}</button></p>`;
+    $('#histBox').innerHTML = `<p style="margin:0"><button class="btn ghost" id="hist">${t('hist.btn', {n: list.length})}</button></p>`;
     $('#hist').onclick = () => { state.tab = 'history'; render(); };
   }).catch(() => {});
   $('#pick').onclick = () => { try { $('#file').click(); } catch(e){ $('#startErr').textContent = t('start.pickFail', {m: e.message}); } };
@@ -8564,7 +8580,29 @@ window.addEventListener('resize', () => { if (lmap && state.tab === 'map') lmap.
 
 /* ------------------------------------------------------------------ menu, about, end screen */
 function closeModal(){ $('#modal').hidden = true; state.menuOpen = false; }
-const coffeeLink = cls => CFG.donateUrl ? `<a class="btn ${cls === undefined ? 'ghost' : cls}" href="${esc(CFG.donateUrl)}" target="_blank" rel="noopener">☕ ${esc(CFG.donateText || t('coffee'))}</a>` : '';
+const donateOn = () => !!(CFG.donateUrl || CFG.bankIban);
+const amountNum = () => (typeof CFG.donateAmount === 'number' && CFG.donateAmount > 0) ? CFG.donateAmount : 2.5;
+const amountStr = () => amountNum().toFixed(2).replace('.', lang === 'et' ? ',' : '.') + ' €';
+const coffeeLink = cls => donateOn() ? `<button class="btn ${cls === undefined ? 'ghost' : cls}" data-coffee="1">☕ ${esc(CFG.donateText || t('coffee'))}</button>` : '';
+function paypalHref(){ return CFG.donateUrl.replace(/\/+$/, '') + '/' + amountNum().toFixed(2) + 'EUR'; }
+function showCoffee(){
+  const bank = CFG.bankIban ? `<button class="btn ghost" id="cfBank">${t('coffee.bank')}</button><div id="cfBankBox" hidden style="margin-top:10px">
+      <div class="small muted">${t('coffee.name')}</div><div><b>${esc(CFG.bankName || '')}</b></div>
+      <div class="small muted" style="margin-top:8px">IBAN</div><div><b id="cfIban">${esc(CFG.bankIban)}</b></div>
+      <div class="small muted" style="margin-top:8px">${t('coffee.amount')}</div><div><b>${esc(amountStr())}</b></div>
+      <div class="small muted" style="margin-top:8px">${t('coffee.ref')}</div><div><b>${esc(CFG.bankRef || 'WhereMeGo')}</b></div>
+      <div class="row"><button class="btn sm" id="cfCopy">${t('coffee.copy')}</button></div></div>` : '';
+  $('#card').innerHTML = `<h2 style="margin:.1em 0">☕ ${t('coffee.title')}</h2><p>${t('coffee.text', {a: amountStr()})}</p>
+    <div class="btns">${CFG.donateUrl ? `<a class="btn" href="${esc(paypalHref())}" target="_blank" rel="noopener">${t('coffee.paypal', {a: amountStr()})}</a>` : ''}${bank}
+    <button class="btn ghost" id="cfClose">${t('btn.close')}</button></div>`;
+  state.menuOpen = true; $('#modal').hidden = false;
+  $('#cfClose').onclick = closeModal;
+  if (CFG.bankIban){
+    $('#cfBank').onclick = () => { $('#cfBankBox').hidden = !$('#cfBankBox').hidden; };
+    $('#cfCopy').onclick = async () => { try { await navigator.clipboard.writeText(CFG.bankIban); $('#cfCopy').textContent = t('coffee.copied'); } catch(e){ $('#cfCopy').textContent = CFG.bankIban; } };
+  }
+}
+document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-coffee]'); if (b) showCoffee(); });
 
 function showMenu(){
   const playing = state.started && vm;
@@ -8592,7 +8630,8 @@ function setLang(l){
   lang = l; try { localStorage.setItem('wheremego:lang', l); } catch(e){}
   applyStatic();
   if (mapWrap){ mapWrap.remove(); lmap.remove(); lmap = null; mapWrap = null; zoneLayers = {}; you = null; accCircle = null; state.mapFitted = false; }
-  showMenu(); render();
+  if (state.menuOpen) showMenu();
+  render();
 }
 
 function goHome(){
@@ -8652,6 +8691,7 @@ if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
 document.querySelectorAll('#nav button').forEach(b => b.onclick = () => { if (state.tab !== b.dataset.tab || state.detail){ (state.tabStack = state.tabStack || []).push(state.tab); if (state.tabStack.length > 30) state.tabStack.shift(); } state.tab = b.dataset.tab; state.detail = null; render(); });
 document.querySelectorAll('#modeSeg button').forEach(b => b.onclick = () => setMode(b.dataset.mode));
 $('#menuBtn').onclick = showMenu;
+document.querySelectorAll('#flags button').forEach(b => b.onclick = () => setLang(b.dataset.l));
 window.addEventListener('error', e => log(t('log.js', {m: e.message}), true));
 window.addEventListener('unhandledrejection', e => log(t('err', {m: (e.reason && e.reason.message || e.reason)}), true));
 applyStatic();
