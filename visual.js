@@ -377,6 +377,7 @@ function objHTML(kind, o) {
 const CSS = `
 .vis h3{margin:.9em 0 .3em;font-size:1rem} .vis h4{margin:.9em 0 .2em;font-size:.85rem;color:var(--muted)}
 .vis details.oc{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:8px 0} .vis details.oc>summary{font-weight:600}
+.vis .ob textarea{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);resize:vertical}
 .vis .ob{padding-top:4px} .vis label.chk{display:block;color:var(--ink);font-size:.9rem;margin:8px 0} .vis label.chk input{width:auto;margin-right:6px}
 .vis .when{font-weight:600;font-size:.85rem;margin:12px 0 4px;color:var(--accent)}
 .vis .alist{border-left:3px solid var(--line);padding-left:8px;margin:4px 0}

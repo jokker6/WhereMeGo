@@ -103,8 +103,8 @@ function buildGWC(meta, luaBin, media) {
   hb.f64(parseFloat(meta.lat) || 0).f64(parseFloat(meta.lon) || 0).f64(0);
   hb.i64(Math.floor((Date.now() - Date.UTC(2004, 1, 10, 1, 0, 0)) / 1000));          // seconds since 2004-02-10 01:00 UTC
   hb.i16(meta.splash > 0 && meta.splash <= media.length ? meta.splash : -1).i16(meta.icon > 0 && meta.icon <= media.length ? meta.icon : -1);
-  hb.z(meta.type || 'Geocache').z('').i64(0).z(meta.name || 'Cartridge').z(guid).z(meta.desc || '').z(meta.startDesc || '')
-    .z(meta.version || '1.0').z(meta.author || '').z(meta.company || '').z('Windows PPC');
+  hb.z('Wherigo').z('').i64(0).z(meta.name || 'Cartridge').z(guid).z(meta.desc || '').z(meta.startDesc || '')
+    .z(meta.version || '1.0').z(meta.author || '').z('').z('Windows PPC');
   const code = b32(guid.replace(/-/g, '').slice(0, 11));
   hb.i32(code.length + 1).z(code);
   const header = hb.bytes();
@@ -357,6 +357,13 @@ css.textContent = `
 .bld .editor{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg);height:55vh;min-height:280px}
 .bld .gut{width:3.2em;overflow:hidden;background:var(--surface);color:var(--muted);text-align:right;padding:8px 6px 8px 0;font:13px/20px ui-monospace,Menlo,Consolas,monospace;white-space:pre;user-select:none}
 .bld #code{flex:1;border:0;outline:0;resize:none;padding:8px;font:13px/20px ui-monospace,Menlo,Consolas,monospace;background:transparent;color:var(--ink);white-space:pre;overflow:auto;tab-size:2}
+.bld{max-width:1240px;margin:0 auto}
+@media (min-width:900px){
+  .bld .bgrid{display:grid;grid-template-columns:360px minmax(0,1fr);gap:22px;align-items:start}
+  .bld .bleft{position:sticky;top:0;max-height:calc(100vh - 150px);overflow:auto;padding-right:4px}
+  .bld .editor{height:62vh}
+  .bld h2{font-size:1.6rem}
+}
 .bld .row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;align-items:center}
 .bld .mitem{display:flex;gap:8px;align-items:center;border-top:1px solid var(--line);padding:6px 0;font-size:.9rem} .bld .mitem b{min-width:1.6em} .bld .mitem span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bld .status{margin:8px 0;font-size:.9rem;white-space:pre-wrap} .bld .status.err{color:var(--warn)} .bld .status a{color:inherit;text-decoration:underline;cursor:pointer}
@@ -435,12 +442,12 @@ function download(blob, name) {
 function renderBuilder(v) {
   const m = B.meta;
   v.innerHTML = `<div class="bld"><button class="back" id="bBack">${t('b.back')}</button><h2>${t('b.title')}</h2>
+  <div class="bgrid"><div class="bleft">
   <details open><summary>${t('b.info')}</summary>
     <label>${t('b.name')}</label><input type="text" id="bName" value="${esc(m.name)}">
-    <div class="two"><div><label>${t('b.author')}</label><input type="text" id="bAuthor" value="${esc(m.author)}"></div><div><label>${t('b.company')}</label><input type="text" id="bCompany" value="${esc(m.company)}"></div></div>
+    <div class="two"><div><label>${t('b.author')}</label><input type="text" id="bAuthor" value="${esc(m.author)}"></div><div><label>${t('b.version')}</label><input type="text" id="bVersion" value="${esc(m.version)}"></div></div>
     <label>${t('b.desc')}</label><textarea class="plain" id="bDesc">${esc(m.desc)}</textarea>
     <label>${t('b.startDesc')}</label><textarea class="plain" id="bStartDesc">${esc(m.startDesc)}</textarea>
-    <div class="two"><div><label>${t('b.version')}</label><input type="text" id="bVersion" value="${esc(m.version)}"></div><div><label>${t('b.type')}</label><select id="bType">${typeOpts(m.type)}</select></div></div>
     <div class="two"><div><label>${t('b.lat')}</label><input type="text" inputmode="decimal" id="bLat" value="${esc(m.lat)}"></div><div><label>${t('b.lon')}</label><input type="text" inputmode="decimal" id="bLon" value="${esc(m.lon)}"></div></div>
     <div class="row"><button class="btn sm ghost" id="bHere">${t('b.here')}</button></div>
     <div class="two"><div><label>${t('b.splash')}</label><select id="bSplash">${mediaOpts(m.splash)}</select></div><div><label>${t('b.icon')}</label><select id="bIcon">${mediaOpts(m.icon)}</select></div></div>
@@ -449,6 +456,7 @@ function renderBuilder(v) {
     <div class="row"><button class="btn sm" id="bAddMedia">${t('b.addMedia')}</button>${B.mode === 'lua' ? `<button class="btn sm ghost" id="bMediaSnip">${t('b.mediaSnip')}</button>` : ''}</div>
     <input type="file" id="bMediaFile" multiple accept=".png,.jpg,.jpeg,.gif,.bmp,.wav,.mp3,.ogg,image/*,audio/*" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" tabindex="-1">
   </details>
+  </div><div class="bright">
   ${B.mode === 'visual' ? `<details open><summary>${t('b.adventure')}</summary><div id="visBox"></div></details>
   <div class="row"><button class="btn" id="bCompile">${t('b.compile')}</button><button class="btn" id="bTest">${t('b.test')}</button><button class="btn" id="bSave">${t('b.save')}</button></div>
   <div class="status" id="bStatus" role="status"></div>
@@ -463,6 +471,7 @@ function renderBuilder(v) {
     <div class="status" id="bStatus" role="status"></div>
   </details>
   <details><summary>${t('b.ref')}</summary><pre class="ref">${esc(REF)}</pre></details>`}
+  </div></div>
   <div class="row"><button class="btn sm ghost" id="bExport">${t('b.export')}</button><button class="btn sm ghost" id="bImport">${t('b.import')}</button><button class="btn sm ghost" id="bNew">${t('b.newProj')}</button>
     <input type="file" id="bImportFile" accept=".json,application/json" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" tabindex="-1"></div>
   <p class="muted small">${t('b.autosave')}</p>
@@ -471,8 +480,8 @@ function renderBuilder(v) {
   const lua = B.mode === 'lua', ta = lua ? $('#code') : null, gut = lua ? $('#gut') : null; if (lua) { ta.value = B.code; gut.textContent = lineNumbers(); } renderMedia();
   const on = (id, ev, fn) => { const e = $(id); if (e) e[ev] = fn; };
   const bind = (id, key, num) => { $(id).oninput = $(id).onchange = e => { B.meta[key] = num ? +e.target.value : e.target.value; scheduleSave(); }; };
-  bind('#bName', 'name'); bind('#bAuthor', 'author'); bind('#bCompany', 'company'); bind('#bDesc', 'desc'); bind('#bStartDesc', 'startDesc'); bind('#bVersion', 'version');
-  bind('#bType', 'type'); bind('#bLat', 'lat'); bind('#bLon', 'lon'); bind('#bSplash', 'splash', true); bind('#bIcon', 'icon', true);
+  bind('#bName', 'name'); bind('#bAuthor', 'author'); bind('#bDesc', 'desc'); bind('#bStartDesc', 'startDesc'); bind('#bVersion', 'version');
+  bind('#bLat', 'lat'); bind('#bLon', 'lon'); bind('#bSplash', 'splash', true); bind('#bIcon', 'icon', true);
   let insertAtCursor = () => {};
   if (lua) {
     ta.oninput = () => { B.code = ta.value; gut.textContent = lineNumbers(); scheduleSave(); };
